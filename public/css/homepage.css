@@ -1,0 +1,185 @@
+  /* Hero Banner */
+  .hero-banner {
+      background: linear-gradient(135deg, #0d9488 0%, #065f46 100%);
+      border-radius: 16px;
+      padding: 40px;
+      color: white;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      min-height: 300px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+  }
+
+  .hero-banner::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 20px;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" fill="%23ffffff"></path></svg>') repeat-x;
+      background-size: 1200px 120px;
+  }
+
+  .hero-title {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 8px;
+  }
+
+  .hero-subtitle {
+      font-size: 48px;
+      font-weight: 900;
+      margin-bottom: 16px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .hero-description {
+      font-size: 16px;
+      margin-bottom: 24px;
+      opacity: 0.9;
+  }
+
+  .hero-btn {
+      background: #fbbf24;
+      color: #1f2937;
+      padding: 12px 32px;
+      border: none;
+      border-radius: 25px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.3s;
+      align-self: center;
+  }
+
+  .hero-btn:hover {
+      transform: translateY(-2px);
+  }
+
+  /* Product Cards */
+  .product-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+  }
+
+  .product-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s;
+      position: relative;
+  }
+
+  .product-card:hover {
+      transform: translateY(-4px);
+  }
+
+  .product-card-image {
+      height: 150px;
+      background: linear-gradient(135deg, #0d9488, #065f46);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+  }
+
+  .product-card-content {
+      padding: 16px;
+      text-align: center;
+  }
+
+  .product-category {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 4px;
+  }
+
+  .product-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #1f2937;
+      margin-bottom: 8px;
+  }
+
+  .product-price {
+      font-size: 20px;
+      font-weight: bold;
+      color: #0d9488;
+      margin-bottom: 12px;
+  }
+
+  .product-btn {
+      background: #fbbf24;
+      color: #1f2937;
+      padding: 8px 20px;
+      border: none;
+      border-radius: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+  }
+
+  .product-btn:hover {
+      background: #f59e0b;
+  }
+
+  /* Right Sidebar */
+  .right-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+  }
+
+  .promo-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      position: relative;
+  }
+
+  .promo-card-image {
+      height: 120px;
+      background: linear-gradient(135deg, #0d9488, #065f46);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+  }
+
+  .promo-card-content {
+      padding: 16px;
+      text-align: center;
+  }
+
+  .promo-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 8px;
+  }
+
+  .promo-price {
+      font-size: 18px;
+      font-weight: bold;
+      color: #0d9488;
+  }
+
+  .discount-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #ef4444;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+  }

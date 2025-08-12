@@ -1,0 +1,467 @@
+   * {
+       margin: 0;
+       padding: 0;
+       box-sizing: border-box;
+   }
+
+   body {
+       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+       background-color: #f9fafb;
+   }
+
+   .container_header {
+       max-width: 1200px;
+       margin: 0 auto;
+       padding: 0 16px;
+   }
+
+   /* ===== TOP NAVIGATION BAR ===== */
+   .top-nav {
+       background-color: #0d9488;
+       color: white;
+       font-size: 14px;
+   }
+
+   .top-nav-content {
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+       padding: 8px 0;
+   }
+
+   .nav-left {
+       display: flex;
+       align-items: center;
+       gap: 24px;
+   }
+
+   .nav-item {
+       display: flex;
+       align-items: center;
+       gap: 4px;
+   }
+
+   .nav-right {
+       display: flex;
+       align-items: center;
+       gap: 16px;
+   }
+
+   .social-links {
+       display: flex;
+       align-items: center;
+       gap: 12px;
+   }
+
+   .social-links a {
+       color: white;
+       text-decoration: none;
+       transition: color 0.3s;
+   }
+
+   .social-links a:hover {
+       color: #5eead4;
+   }
+
+   .auth-section {
+       display: flex;
+       align-items: center;
+       gap: 16px;
+       border-left: 1px solid #14b8a6;
+       padding-left: 16px;
+   }
+
+   .icon {
+       width: 16px;
+       height: 16px;
+       fill: currentColor;
+   }
+
+   /* ===== MAIN HEADER ===== */
+   .main-header {
+       background-color: white;
+       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+   }
+
+   .header-content {
+       display: flex;
+       align-items: center;
+       justify-content: space-between;
+       padding: 16px 0;
+   }
+
+   /* ===== LOGO ===== */
+   .logo {
+       display: flex;
+       flex-direction: column;
+       align-items: center;
+   }
+
+   .logo img {
+       height: 50px;
+       object-fit: contain;
+   }
+
+   /* ===== SEARCH SECTION ===== */
+   .search-section {
+       display: flex;
+       align-items: center;
+       flex: 1;
+       max-width: 512px;
+       margin: 0 32px;
+   }
+
+   .category-btn {
+       background-color: #0d9488;
+       color: white;
+       padding: 12px 24px;
+       border: none;
+       border-radius: 8px 0 0 8px;
+       display: flex;
+       align-items: center;
+       gap: 8px;
+       cursor: pointer;
+       font-weight: 500;
+       transition: background-color 0.3s;
+   }
+
+   .category-btn:hover {
+       background-color: #0f766e;
+   }
+
+   .search-input-container {
+       flex: 1;
+       position: relative;
+   }
+
+   .search-input {
+       width: 100%;
+       padding: 12px 16px;
+       border: 1px solid #d1d5db;
+       border-left: none;
+       border-radius: 0 8px 8px 0;
+       outline: none;
+       font-size: 14px;
+   }
+
+   .search-input:focus {
+       border-color: #0d9488;
+       box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
+   }
+
+   .search-btn {
+       position: absolute;
+       right: 12px;
+       top: 50%;
+       transform: translateY(-50%);
+       background: none;
+       border: none;
+       cursor: pointer;
+   }
+
+   /* ===== RIGHT SECTION ===== */
+   .right-section {
+       display: flex;
+       align-items: center;
+       gap: 24px;
+   }
+
+   .contact-item {
+       display: flex;
+       align-items: center;
+       gap: 8px;
+   }
+
+   .contact-icon {
+       width: 40px;
+       height: 40px;
+       border-radius: 50%;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+   }
+
+   .hotline-icon {
+       background-color: #ccfbf1;
+   }
+
+   .hotline-icon .icon {
+       color: #0d9488;
+       width: 20px;
+       height: 20px;
+   }
+
+   .consultation-icon {
+       background-color: #fef3c7;
+   }
+
+   .consultation-icon .icon {
+       color: #d97706;
+       width: 20px;
+       height: 20px;
+   }
+
+   .contact-text {
+       display: flex;
+       flex-direction: column;
+   }
+
+   .contact-label {
+       font-size: 12px;
+       color: #6b7280;
+   }
+
+   .contact-value {
+       font-weight: 600;
+       color: #0d9488;
+   }
+
+   .cart {
+       display: flex;
+       align-items: center;
+       gap: 8px;
+       border: 1px solid #d1d5db;
+       border-radius: 8px;
+       padding: 8px 16px;
+       cursor: pointer;
+       transition: border-color 0.3s;
+   }
+
+   .cart:hover {
+       border-color: #0d9488;
+   }
+
+   .cart-icon-container {
+       position: relative;
+   }
+
+   .cart-icon {
+       width: 24px;
+       height: 24px;
+       color: #6b7280;
+   }
+
+   .cart-badge {
+       position: absolute;
+       top: -8px;
+       right: -8px;
+       background-color: #0d9488;
+       color: white;
+       font-size: 12px;
+       border-radius: 50%;
+       width: 20px;
+       height: 20px;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+   }
+
+   .cart-text {
+       color: #374151;
+       font-weight: 500;
+   }
+
+   /* ===== BREADCRUMB ===== */
+   .breadcrumb {
+       background-color: #f3f4f6;
+       padding: 12px 0;
+       font-size: 14px;
+       color: #6b7280;
+   }
+
+   .separator {
+       margin: 0 8px;
+   }
+
+
+   /* ===== REGISTRATION FORM ===== */
+   .form-container {
+       max-width: 700px;
+       margin: 8px auto;
+
+       padding: 0 16px;
+       height: calc(100vh - 120px);
+       overflow-y: auto;
+   }
+
+   .form-wrapper {
+       background-color: white;
+       border-radius: 6px;
+       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+       padding: 12px;
+   }
+
+   .form-title {
+       font-size: 16px;
+       font-weight: bold;
+       text-align: center;
+       color: #1f2937;
+       margin-bottom: 12px;
+   }
+
+   .registration-form {
+       /* display: grid; */
+       grid-template-columns: 1fr 1fr;
+       gap: 8px;
+       column-gap: 16px;
+   }
+
+   .form-group {
+       display: flex;
+       flex-direction: column;
+   }
+
+   .form-group.full-width {
+       grid-column: 1 / -1;
+   }
+
+   .form-label {
+       font-size: 12px;
+       font-weight: 500;
+       color: #374151;
+       margin-bottom: 3px;
+   }
+
+   .form-input,
+   .form-select {
+       padding: 4px 8px;
+       border: 1px solid #d1d5db;
+       border-radius: 4px;
+       font-size: 12px;
+       outline: none;
+       transition: border-color 0.3s, box-shadow 0.3s;
+       height: 32px;
+   }
+
+   .form-input:focus,
+   .form-select:focus {
+       border-color: #0d9488;
+       box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.1);
+   }
+
+   .radio-group {
+       display: flex;
+       gap: 12px;
+       margin-top: 3px;
+   }
+
+   .radio-label {
+       display: flex;
+       align-items: center;
+       cursor: pointer;
+   }
+
+   .radio-input {
+       margin-right: 6px;
+       accent-color: #0d9488;
+   }
+
+   .radio-text {
+       font-size: 12px;
+       color: #374151;
+   }
+
+   .date-group {
+       display: flex;
+       gap: 6px;
+   }
+
+   .date-select {
+       flex: 1;
+       padding: 4px 8px;
+       border: 1px solid #d1d5db;
+       border-radius: 4px;
+       font-size: 12px;
+       outline: none;
+       transition: border-color 0.3s, box-shadow 0.3s;
+       height: 32px;
+   }
+
+   .date-select:focus {
+       border-color: #0d9488;
+       box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.1);
+   }
+
+   .submit-btn {
+       background-color: #0d9488;
+       color: white;
+       padding: 8px 16px;
+       border: none;
+       border-radius: 4px;
+       font-size: 14px;
+       font-weight: 600;
+       cursor: pointer;
+       transition: background-color 0.3s;
+       margin-top: 8px;
+       grid-column: 1 / -1;
+   }
+
+   .submit-btn:hover {
+       background-color: #0f766e;
+   }
+
+   .submit-btn:active {
+       background-color: #134e4a;
+   }
+
+   /* ===== RESPONSIVE DESIGN ===== */
+   @media (max-width: 768px) {
+       .registration-form {
+           grid-template-columns: 1fr;
+           gap: 6px;
+       }
+
+       .form-group.full-width {
+           grid-column: 1;
+       }
+
+       .container_header {
+           padding: 0 12px;
+       }
+
+       .top-nav-content {
+           flex-direction: column;
+           gap: 8px;
+           padding: 8px 0;
+       }
+
+       .nav-left,
+       .nav-right {
+           flex-wrap: wrap;
+           justify-content: center;
+       }
+
+       .header-content {
+           flex-direction: column;
+           gap: 12px;
+       }
+
+       .search-section {
+           margin: 0;
+           max-width: 100%;
+       }
+
+       .right-section {
+           flex-wrap: wrap;
+           justify-content: center;
+           gap: 12px;
+       }
+
+       .form-wrapper {
+           padding: 10px;
+       }
+
+       .form-title {
+           font-size: 14px;
+           margin-bottom: 10px;
+       }
+
+       .date-group {
+           flex-direction: column;
+       }
+
+       .radio-group {
+           flex-direction: column;
+           gap: 8px;
+       }
+   }

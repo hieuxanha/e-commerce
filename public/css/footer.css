@@ -1,0 +1,378 @@
+/* ===== NEWSLETTER SECTION ===== */
+.newsletter-section {
+    background-color: #f0f2f5;
+    padding: 30px 0;
+    text-align: center;
+}
+
+.newsletter-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.newsletter-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.email-icon {
+    width: 40px;
+    height: 40px;
+    color: #0d9488;
+}
+
+.newsletter-text h2 {
+    font-size: 20px;
+    color: #1f2937;
+    margin-bottom: 5px;
+}
+
+.newsletter-text p {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.newsletter-right {
+    display: flex;
+    width: 100%;
+    max-width: 400px;
+}
+
+.newsletter-input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px 0 0 4px;
+    outline: none;
+    font-size: 14px;
+}
+
+.newsletter-input:focus {
+    border-color: #0d9488;
+    box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.1);
+}
+
+.newsletter-button {
+    background-color: #0d9488;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.newsletter-button:hover {
+    background-color: #0f766e;
+}
+
+.arrow-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* ===== MAIN FOOTER SECTION ===== */
+.main-footer {
+    background-color: #ffffff;
+    color: #b0b0b0;
+    padding: 40px 0;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+.footer-col h3 {
+    /* color: white; */
+    color: #0d0909;
+    font-size: 16px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+.footer-col ul {
+
+    list-style: none;
+    padding: 0;
+}
+
+.footer-col ul li {
+    margin-bottom: 10px;
+}
+
+.footer-col ul li a {
+    color: #0d0909;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s;
+}
+
+.footer-col ul li a:hover {
+    color: #29A07E;
+}
+
+.footer-logo img {
+    height: 60px;
+    margin-bottom: 20px;
+}
+
+.contact-info p {
+    color: #0d0909;
+
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.contact-icon {
+    color: #0d0909;
+
+    width: 18px;
+    height: 18px;
+    color: #b0b0b0;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.social-media-icons {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    text-decoration: none;
+    color: #0d0909;
+
+}
+
+/* img {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.3s;
+} */
+
+
+.social-media-icons img:hover {
+    transform: translateY(-3px);
+}
+
+.bocongthuong-badge {
+    margin-top: 20px;
+}
+
+.bocongthuong-badge img {
+    max-width: 150px;
+    height: auto;
+}
+
+.facebook-widget {
+    position: relative;
+    width: 250px;
+    /* Adjust as needed */
+    height: 150px;
+    /* Adjust as needed */
+    background-color: #3b5998;
+    /* Facebook blue */
+    border-radius: 5px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    text-align: center;
+}
+
+.facebook-widget img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.6);
+    /* Darken background image */
+}
+
+.facebook-overlay {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.facebook-follow-btn {
+    background-color: #4267b2;
+    /* Darker Facebook blue */
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.facebook-follow-btn:hover {
+    background-color: #365899;
+}
+
+/* ===== COPYRIGHT SECTION ===== */
+.copyright-section {
+    background-color: #1a1a1a;
+    color: #888;
+    padding: 20px 0;
+    font-size: 13px;
+    text-align: center;
+}
+
+.copyright-section .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+.copyright-section p {
+    margin-bottom: 5px;
+    line-height: 1.5;
+}
+
+/* ===== FLOATING SOCIAL BUTTONS ===== */
+.floating-social {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.floating-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s, background-color 0.3s;
+}
+
+.floating-btn:hover {
+    transform: translateY(-3px);
+}
+
+.floating-btn svg {
+    width: 24px;
+    height: 24px;
+    color: white;
+}
+
+.back-to-top {
+    background-color: #0d9488;
+}
+
+.messenger {
+    background-color: #0084ff;
+    /* Facebook Messenger blue */
+}
+
+/* Responsive adjustments for footer */
+@media (max-width: 768px) {
+    .newsletter-content {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .newsletter-left {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+
+    .newsletter-text h2 {
+        font-size: 18px;
+    }
+
+    .newsletter-text p {
+        font-size: 13px;
+    }
+
+    .newsletter-right {
+        flex-direction: row;
+        width: 100%;
+    }
+
+    .newsletter-input,
+    .newsletter-button {
+        border-radius: 4px;
+        /* Remove specific corner rounding for stacked layout */
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .footer-col h3 {
+        margin-bottom: 15px;
+    }
+
+    .footer-col ul {
+        margin-bottom: 20px;
+    }
+
+    .contact-info {
+        align-items: center;
+    }
+
+    .social-media-icons {
+        justify-content: center;
+    }
+
+    .facebook-widget {
+        margin: 0 auto;
+        /* Center the widget on small screens */
+    }
+
+    .copyright-section p {
+        font-size: 12px;
+    }
+
+    .floating-social {
+        bottom: 15px;
+        right: 15px;
+        gap: 8px;
+    }
+
+    .floating-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .floating-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+}
