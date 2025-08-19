@@ -3,52 +3,70 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
-use Illuminate\Support\Facades\Auth;
+
+// Controllers đúng namespace
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NhanVien\ProductController;
+use App\Http\Controllers\NhanVien\BrandController;
+use App\Http\Controllers\NhanVien\CategoryController;
+use App\Http\Controllers\CartController;
 
 
+/*
+|---------------------
+| Public
+|---------------------
+*/
 
-// Cố hiinhf bị mẫ hóa
+// Cho / trỏ về /home
+Route::redirect('/', '/home');
 
-use App\Models\User;
-
-Route::get('/fix-pass-once', function () {
-    $u = User::where('email', 'b@example.com')->firstOrFail();
-    $u->password = '123456'; // tự bcrypt nhờ casts
-    $u->save();
-    return 'OK';
-});
+Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::get('/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
 
 
-// Trang welcome
-Route::get('/', function () {
-    return view('welcome');
-})->name('welcome');
+// Trang chủ: LẤY dữ liệu từ DB (HomeController@index)
+Route::get('/home', [HomeController::class, 'index'])->name('home');
 
-// Đăng ký
+// Auth
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register.form');
 Route::post('/register', [RegisterController::class, 'register'])->name('register');
 
-// Đăng nhập
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
-
-// Đăng xuất
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// Trang chủ sau khi đăng nhập
-Route::get('/home', function () {
-    return view('layouts.trangchu');
-})->name('home');
+// Trang chi tiết sản phẩm tĩnh (nếu có)
+Route::view('/chitietsanpham', 'layouts.chitietsanpham')->name('sanpham.chitiet');
 
-// Route::get('/chi-tiet-san-pham', 'layouts.chitietsanpham')->name('sanpham.chitiet');
+/*
+|---------------------
+| Admin / Nhân viên
+|---------------------
+*/
+
+Route::get('/admin/dashboard', fn() => view('admin.dashboard'))
+    ->name('admin.dashboard')
+    ->middleware('auth');
+
+// NHỚ: KHÔNG dùng Route::view cho /nhanvien/san-pham nữa
+Route::prefix('nhanvien')->name('nhanvien.')->middleware('auth')->group(function () {
+    Route::get('/dashboard', fn() => view('nhanvien.dashboard'))->name('dashboard');
 
 
+    // Giao diện danh sách sản phẩm (LIST)
+    Route::get('/danh-sach-san-pham', function () {
+        return view('nhanvien.QL_sanpham');
+    })->name('danhsachsanpham');
 
-// Các route cho dashboard từng role (nếu có)
-Route::get('/admin/dashboard', function () {
-    return view('admin.dashboard');
-})->name('admin.dashboard')->middleware('auth');
+    Route::get('/san-pham/them', function () {
+        return view('nhanvien.Them_thongtin_sp');
+    })->name('sanpham.them');
 
-Route::get('/admin/dashboard', function () {
-    return view('nhanvien.dashboard');
-})->name('admin.dashboard')->middleware('auth');
+
+    Route::get('/san-pham', [ProductController::class, 'index'])->name('sanpham');
+    Route::post('/brands', [BrandController::class, 'store'])->name('brands.store');
+    Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
+    Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+});

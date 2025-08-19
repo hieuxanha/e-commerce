@@ -1,0 +1,334 @@
+ :root {
+     --bg: #f7f8fa;
+     --card: #fff;
+     --muted: #6b7280;
+     --text: #111827;
+     --brand: #0aa37f;
+     --brand-2: #f59e0b;
+     --danger: #ef4444;
+     --line: #e5e7eb;
+     --shadow: 0 1px 4px rgba(0, 0, 0, .08);
+     --radius: 12px;
+ }
+
+ * {
+     box-sizing: border-box
+ }
+
+ html,
+ body {
+     height: 100%
+ }
+
+ body {
+     margin: 0;
+     background: var(--bg);
+     color: var(--text);
+     font: 14px/1.5 ui-sans-serif, system-ui, Segoe UI, Roboto
+ }
+
+ .app {
+     display: grid;
+     grid-template-columns: 260px minmax(0, 1fr);
+     min-height: 100vh
+ }
+
+ /* Sidebar */
+ .side {
+     background: #fff;
+     border-right: 1px solid var(--line);
+     display: flex;
+
+     flex-direction: column;
+     height: 100vh;
+
+ }
+
+ .side .brand {
+     display: flex;
+     align-items: center;
+     gap: 10px;
+     padding: 16px 18px;
+     font-weight: 700
+ }
+
+ .side .brand img {
+     width: 28px;
+     height: 28px;
+     border-radius: 50%
+ }
+
+ .menu {
+     flex: 1;
+     /* chiếm phần còn lại dưới brand */
+     overflow: auto;
+     /* hiện scrollbar khi tràn */
+     padding: 8px;
+     padding-bottom: 16px;
+ }
+
+ .mi {
+     display: flex;
+     align-items: center;
+     gap: 12px;
+     padding: 10px 12px;
+     border-radius: 10px;
+     color: #1f2937;
+     text-decoration: none
+ }
+
+ .mi svg {
+     width: 18px;
+     height: 18px
+ }
+
+ .mi.active,
+ .mi:hover {
+     background: #f0fdf4;
+     color: #065f46
+ }
+
+ .menu h6 {
+     margin: 10px 12px 6px;
+     color: var(--muted);
+     font-size: 12px;
+     font-weight: 600
+ }
+
+ /* Topbar */
+ .top {
+     display: flex;
+     align-items: center;
+     gap: 12px;
+     background: #fff;
+     padding: 10px 16px;
+     border-bottom: 1px solid var(--line);
+     min-height: 50px;
+
+ }
+
+
+ /* Khung search */
+ .top-search {
+     display: flex;
+     align-items: center;
+
+     gap: 8px;
+     width: min(720px, 100%);
+     /* co giãn hợp lý */
+     margin-inline: 0;
+     /* căn giữa trong topbar */
+     background: #f3f4f6;
+     border: 1px solid var(--line, #e5e7eb);
+     padding: 8px 12px;
+     border-radius: 999px;
+     transition: .2s ease;
+ }
+
+ .top-search:focus-within {
+     background: #fff;
+     border-color: #0d9488;
+     box-shadow: 0 0 0 3px rgba(13, 148, 136, .15);
+ }
+
+ /* Ô nhập */
+ .top-search-input {
+     flex: 1;
+     border: none;
+     outline: none;
+     font-size: 14px;
+     background: transparent;
+ }
+
+ /* Nút kính lúp */
+ .top-search-btn {
+     border: none;
+     outline: none;
+     cursor: pointer;
+     width: 36px;
+     height: 36px;
+     border-radius: 999px;
+     display: inline-flex;
+     align-items: center;
+     justify-content: center;
+     background: #0d9488;
+     color: #fff;
+     transition: background .2s ease;
+ }
+
+ .top-search-btn:hover {
+     background: #0f766e;
+ }
+
+ /* Mobile: full chiều rộng và bớt padding */
+ @media (max-width: 640px) {
+     .top-search {
+         width: 100%;
+         padding: 6px 10px;
+     }
+ }
+
+
+ .top .back {
+     display: flex;
+     align-items: center;
+     gap: 6px;
+     color: #374151;
+     text-decoration: none
+ }
+
+ .top .title {
+     font-weight: 700
+ }
+
+ .top .sep {
+     flex: 1
+ }
+
+ .chip {
+     background: #eef2ff;
+     color: #4338ca;
+     border-radius: 999px;
+     padding: 4px 10px;
+     font-size: 12px;
+     font-weight: 600
+ }
+
+ /* Content */
+ .content {
+     padding: 18px
+ }
+
+ .tabs {
+     display: flex;
+     gap: 8px;
+     margin-bottom: 16px;
+     flex-wrap: wrap;
+ }
+
+ .tab-btn {
+     padding: 8px 12px;
+     border: 1px solid #e5e7eb;
+     border-radius: 8px;
+     background: #fff;
+     cursor: pointer;
+     font-weight: 600;
+     color: #374151;
+ }
+
+ .tab-btn.active {
+     background: #0d9488;
+     color: #fff;
+     border-color: #0d9488;
+ }
+
+ .tab-panel {
+     display: none;
+     background: #fff;
+     border: 1px solid #e5e7eb;
+     border-radius: 12px;
+     padding: 16px;
+ }
+
+ .tab-panel.active {
+     display: block;
+ }
+
+ .panel-title {
+     font-size: 18px;
+     font-weight: 800;
+     margin-bottom: 12px;
+     color: #111827;
+ }
+
+ .form-grid {
+     display: grid;
+     gap: 12px;
+ }
+
+ .grid-2 {
+     display: grid;
+     gap: 12px;
+     grid-template-columns: repeat(2, minmax(0, 1fr));
+ }
+
+ @media (max-width:768px) {
+     .grid-2 {
+         grid-template-columns: 1fr;
+     }
+ }
+
+ .form-row {
+     display: flex;
+     flex-direction: column;
+     gap: 6px;
+ }
+
+ .form-row label {
+     font-size: 14px;
+     color: #374151;
+     font-weight: 600;
+ }
+
+ .req {
+     color: #ef4444;
+ }
+
+ .form-row input[type="text"],
+ .form-row input[type="number"],
+ .form-row textarea,
+ .form-row select {
+     border: 1px solid #e5e7eb;
+     border-radius: 10px;
+     padding: 10px 12px;
+     outline: none;
+     background: #fff;
+ }
+
+ .form-row input:focus,
+ .form-row textarea:focus,
+ .form-row select:focus {
+     border-color: #0d9488;
+     box-shadow: 0 0 0 3px rgba(13, 148, 136, .12);
+ }
+
+ .actions {
+     display: flex;
+     gap: 8px;
+     justify-content: flex-start;
+     margin-top: 8px;
+ }
+
+ .btn {
+     border: none;
+     border-radius: 10px;
+     padding: 10px 16px;
+     cursor: pointer;
+     font-weight: 700;
+ }
+
+ .btn.primary {
+     background: #0d9488;
+     color: #fff;
+ }
+
+ .btn.primary:hover {
+     background: #0f766e;
+ }
+
+
+ @media (max-width:1100px) {
+     .kpis {
+         grid-template-columns: repeat(2, minmax(0, 1fr))
+     }
+ }
+
+ @media (max-width:680px) {
+     .app {
+         grid-template-columns: 1fr
+     }
+
+     .side {
+         display: none
+     }
+ }

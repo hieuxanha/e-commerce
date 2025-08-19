@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Chiến dịch tuyển dụng</title>
     <link rel="stylesheet" href="">
-    <link rel="stylesheet" href="{{ asset('css/admin/admin.css') }}" />
+    <link rel="stylesheet" href="{{ asset('css/nhanvien/nhanvien.css') }}" />
 
     <!-- <link rel="stylesheet" href="{{ asset('css/login.css') }}" /> -->
 
@@ -21,7 +21,7 @@
             <div class="brand">
                 <img src="https://i.pravatar.cc/56?img=12" alt="">
                 <div>
-                    <div>ADMIN</div>
+                    <div>Nhân viên</div>
                     <small style="color:var(--muted)">Silver</small>
                 </div>
             </div>
@@ -30,9 +30,21 @@
                 <a class="mi active" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M3 12l2-2 4 4 8-8 4 4" stroke-width="2" />
                     </svg> Trang chủ</a>
-                <a class="mi" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <circle cx="12" cy="12" r="9" stroke-width="2" />
-                    </svg> Quản lý sản phẩm</a>
+
+                <div class="mi has-sub {{ request()->routeIs('nhanvien.danhsachsanpham') ? 'active' : '' }}">
+                    <div class="menu-parent">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="12" cy="12" r="9" stroke-width="2" />
+                        </svg>
+                        <span>Quản lý sản phẩm</span>
+                    </div>
+                    <div class="submenu">
+                        <a href="{{ route('nhanvien.danhsachsanpham') }}">Danh sách sản phẩm</a>
+
+                        <a href="{{ route('nhanvien.sanpham') }}">Thêm sản phẩm</a>
+
+                    </div>
+                </div>
 
 
                 <a class="mi " href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -46,7 +58,10 @@
                         <path d="M3 3h18v14H3z" stroke-width="2" />
                         <path d="M3 9h18" stroke-width="2" />
                     </svg> Quản lý khuyến mãi và mã giảm giá</a>
-
+                <a class="mi" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M3 3h18v14H3z" stroke-width="2" />
+                        <path d="M3 9h18" stroke-width="2" />
+                    </svg> Quản lý vận chuyển</a>
                 <a class="mi" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M12 1v22M1 12h22" stroke-width="2" />
                     </svg> Quản lý thanh toán</a>
@@ -58,9 +73,6 @@
                         <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke-width="2" />
                     </svg> Báo cáo và hệ thống nâng cao</a>
 
-                <a class="mi" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke-width="2" />
-                    </svg>Quản lý phân quyền</a>
             </nav>
         </aside>
 
@@ -79,15 +91,15 @@
                 <!-- KPIs -->
                 <div class="grid kpis">
                     <div class="card kpi">
-                        <div class="lbl">......</div>
+                        <div class="lbl">TỔNG LƯỢNG CV ỨNG VIÊN</div>
                         <div class="val">85</div>
                     </div>
                     <div class="card kpi green">
-                        <div class="lbl">///////////</div>
+                        <div class="lbl">CV ỨNG TUYỂN</div>
                         <div class="val">79</div>
                     </div>
                     <div class="card kpi red">
-                        <div class="lbl">Ở LIÊN HỆ</div>
+                        <div class="lbl">CV MỞ LIÊN HỆ</div>
                         <div class="val">6</div>
                     </div>
                     <div class="card kpi orange">
@@ -95,7 +107,7 @@
                         <div class="val">95</div>
                     </div>
                     <div class="card kpi">
-                        <div class="lbl">SỐ LƯỢT MỞĐÃ DÙNG</div>
+                        <div class="lbl">SỐ LƯỢT MỞ CV ĐÃ DÙNG</div>
                         <div class="val">0</div>
                     </div>
                 </div>

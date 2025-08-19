@@ -36,7 +36,7 @@ class LoginController extends Controller
                 case 'admin':
                     return redirect()->route('admin.dashboard'); // route admin
                 case 'nhan_vien':
-                    return redirect()->route('admin.dashboard'); // route nhân viên
+                    return redirect()->route('nhanvien.dashboard'); // route nhân viên
                 case 'khach_hang':
                 default:
                     return redirect()->route('home');

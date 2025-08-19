@@ -94,7 +94,7 @@
                 <!-- Logo -->
                 <div class="logo">
                     <div class="logo-icon">
-                        <img src="../img/logo.png" alt="Lắc Đầu Logo" />
+                        <img src="../img/logo_web.jpg" alt="Lắc Đầu Logo" />
                     </div>
                 </div>
                 <!-- Categories Button and Search -->
@@ -152,23 +152,60 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Shopping Cart -->
-                    <div class="cart">
-                        <div class="cart-icon-container">
-                            <svg class="cart-icon" viewBox="0 0 20 20">
-                                <path
-                                    d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
-                            </svg>
-                            <span class="cart-badge">0</span>
+                    <!-- GÓI TOÀN BỘ TRONG THẺ CHA -->
+                    @php
+                    use Illuminate\Support\Facades\Auth;
+                    $user = Auth::user();
+                    $cartItems = \App\Models\CartItem::with('product')->where('user_id', optional($user)->id)->get();
+                    $totalQuantity = $cartItems->sum('quantity');
+                    $totalAmount = $cartItems->reduce(function ($carry, $item) {
+                    $price = $item->product->gia_khuyen_mai ?? $item->product->gia;
+                    return $carry + $price * $item->quantity;
+                    }, 0);
+                    @endphp
+
+                    <div class="cart-wrapper" style="position: relative">
+                        <div class="cart" onclick="toggleCartDropdown()">
+                            <span>Giỏ hàng</span>
+                            <span class="cart-badge">{{ $totalQuantity }}</span>
                         </div>
-                        <span class="cart-text">Giỏ hàng</span>
+
+                        <!-- DROPDOWN GIỎ HÀNG -->
+                        <div id="cart-dropdown" class="cart-dropdown">
+                            @forelse($cartItems as $item)
+                            @php
+                            $price = $item->product->gia_khuyen_mai ?? $item->product->gia;
+                            $itemTotal = $price * $item->quantity;
+                            @endphp
+                            <div class="cart-item">
+                                <img src="{{ asset('storage/' . $item->product->hinh_anh_chinh) }}" width="60" height="60">
+                                <div>
+                                    <strong>{{ $item->product->ten_san_pham }}</strong>
+                                    <br>
+                                    x{{ $item->quantity }}<br>
+                                    <strong>{{ number_format($itemTotal, 0, ',', '.') }}đ</strong>
+                                </div>
+                            </div>
+                            @empty
+                            <p style="padding: 10px">Chưa có sản phẩm trong giỏ hàng.</p>
+                            @endforelse
+
+                            @if($totalQuantity > 0)
+                            <div class="cart-total">
+                                Tổng tiền hàng ({{ $totalQuantity }} sản phẩm):
+                                <strong>{{ number_format($totalAmount, 0, ',', '.') }}đ</strong>
+                            </div>
+                            <a href="{{ route('cart.checkout') }}" class="btn-primary" style="display:block; text-align:center">THANH TOÁN NGAY</a>
+                            @endif
+                        </div>
                     </div>
+
+
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Main Content Layout -->
     <!-- Main Content Layout -->
     <div class="container">
         <div class="main-layout">
@@ -334,125 +371,130 @@
 
         <!-- LỚT CHUỘT Section -->
         <div class="container">
-            <div class="product-section">
+            @foreach($categories as $cat)
+            <div class="product-section"> {{-- ✅ Tách mỗi danh mục thành 1 block riêng --}}
                 <div class="section-header">
-                    <h2 class="section-title">LỚT CHUỘT</h2>
+                    <h2 class="section-title">{{ strtoupper($cat->ten_danh_muc) }} 🐭 🐁</h2>
                     <div class="section-filters">
-                        <div class="filter-tab active">LỚT CHUỘT CỠ 26X21</div>
-                        <div class="filter-tab">LỚT CHUỘT CỠ 35X30</div>
-                        <div class="filter-tab">LỚT CHUỘT CỠ 45X40</div>
-                        <div class="filter-tab">LỚT CHUỘT CỠ 60X35</div>
-                        <div class="filter-tab">XEM THÊM →</div>
+                        <a class="filter-tab" href="">XEM THÊM →</a>
                     </div>
                 </div>
+
                 <div class="products-grid">
+                    @forelse($cat->products as $p)
+                    @php
+                    $percent = ($p->gia && $p->gia_khuyen_mai && $p->gia > 0)
+                    ? round(100 - ($p->gia_khuyen_mai / $p->gia) * 100)
+                    : null;
+
+                    $img = $p->hinh_anh_chinh
+                    ? (preg_match('/^https?:\/\//', $p->hinh_anh_chinh)
+                    ? $p->hinh_anh_chinh
+                    : asset('storage/' . $p->hinh_anh_chinh))
+                    : asset('img/placeholder-product.jpg');
+                    @endphp
+
                     <div class="product-item">
-                        <div class="discount-label">-21%</div>
-                        <img
-                            src="../img/lottchuot1.jpg"
-                            alt="PAD 94 DOODLE TRANG"
-                            class="product-image" />
+                        @if($percent)
+                        <div class="discount-label">-{{ $percent }}%</div>
+                        @endif
+
+                        <img src="{{ $img }}" alt="{{ $p->ten_san_pham }}" class="product-image">
+
                         <div class="product-info">
-                            <div class="product-code">Mã: PAD0681</div>
-                            <div class="product-name">PAD 94 DOODLE TRANG</div>
-                            <div class="product-status">Còn hàng</div>
+                            <div class="product-code">Mã: {{ $p->sku }}</div>
+                            <div class="product-name">{{ $p->ten_san_pham }}</div>
+                            <div class="product-status">
+                                @switch($p->trang_thai)
+                                @case('con_hang') Còn hàng @break
+                                @case('het_hang') Hết hàng @break
+                                @case('sap_ve') Sắp về @break
+                                @default Đang cập nhật
+                                @endswitch
+                            </div>
                             <div class="product-pricing">
-                                <!-- <div class="original-price">120.000đ</div> -->
-                                <div class="current-price">95.000đ</div>
+                                @if($p->gia_khuyen_mai)
+                                <div class="original-price">{{ number_format($p->gia, 0, ',', '.') }}đ</div>
+                                <div class="current-price">{{ number_format($p->gia_khuyen_mai, 0, ',', '.') }}đ</div>
+                                @else
+                                <div class="current-price">{{ number_format($p->gia, 0, ',', '.') }}đ</div>
+                                @endif
                             </div>
                         </div>
-                        <button class="add-to-cart-btn">+</button>
+
+                        <button class="add-to-cart-btn" data-id="{{ $p->id }}">+</button>
                     </div>
-                    <div class="product-item">
-                        <div class="discount-label">-21%</div>
-                        <img
-                            src="../img/lottchuot1.jpg"
-                            alt="PAD 94 BEAN PACMAN"
-                            class="product-image" />
-                        <div class="product-info">
-                            <div class="product-code">Mã: PAD0498</div>
-                            <div class="product-name">PAD 94 BEAN PACMAN</div>
-                            <div class="product-status">Còn hàng</div>
-                            <div class="product-pricing">
-                                <!-- <div class="original-price">120.000đ</div> -->
-                                <div class="current-price">95.000đ</div>
-                            </div>
-                        </div>
-                        <button class="add-to-cart-btn">+</button>
-                    </div>
-                    <div class="product-item">
-                        <div class="discount-label">-21%</div>
-                        <img
-                            src="../img/lottchuot1.jpg"
-                            alt="PAD 94 LINE FRIEND"
-                            class="product-image" />
-                        <div class="product-info">
-                            <div class="product-code">Mã: PAD0270</div>
-                            <div class="product-name">PAD 94 LINE FRIEND</div>
-                            <div class="product-status">Còn hàng</div>
-                            <div class="product-pricing">
-                                <!-- <div class="original-price">120.000đ</div> -->
-                                <div class="current-price">95.000đ</div>
-                            </div>
-                        </div>
-                        <button class="add-to-cart-btn">+</button>
-                    </div>
-                    <div class="product-item">
-                        <div class="discount-label">-23%</div>
-                        <img
-                            src="../img/lottchuot1.jpg"
-                            alt="PAD 83 YASUO AH LÀNG KIẾM"
-                            class="product-image" />
-                        <div class="product-info">
-                            <div class="product-code">Mã: PAD0160</div>
-                            <div class="product-name">
-                                PAD 83 YASUO AH LÀNG KIẾM
-                            </div>
-                            <div class="product-status">Còn hàng</div>
-                            <div class="product-pricing">
-                                <!-- <div class="original-price">90.000đ</div> -->
-                                <div class="current-price">69.000đ</div>
-                            </div>
-                        </div>
-                        <button class="add-to-cart-btn">+</button>
-                    </div>
-                    <div class="product-item">
-                        <img
-                            src="../img/lottchuot1.jpg"
-                            alt="LỚT CHUỘT LED RGB 80-30 GENGAR"
-                            class="product-image" />
-                        <div class="product-info">
-                            <div class="product-code">Mã: PADLE00025</div>
-                            <div class="product-name">
-                                LỚT CHUỘT LED RGB 80-30 GENGAR
-                            </div>
-                            <div class="product-status">Còn hàng</div>
-                            <div class="product-pricing">
-                                <div class="current-price">120.000đ</div>
-                            </div>
-                        </div>
-                        <button class="add-to-cart-btn">+</button>
-                    </div>
-                    <div class="product-item">
-                        <img
-                            src="../img/lottchuot1.jpg"
-                            alt="LỚT CHUỘT 3D SILICON KÊ CỔ TAY RED RAINBOW"
-                            class="product-image" />
-                        <div class="product-info">
-                            <div class="product-code">Mã: KT300050</div>
-                            <div class="product-name">
-                                LỚT CHUỘT 3D SILICON KÊ CỔ TAY RED RAINBOW
-                            </div>
-                            <div class="product-status">Còn hàng</div>
-                            <div class="product-pricing">
-                                <div class="current-price">120.000đ</div>
-                            </div>
-                        </div>
-                        <button class="add-to-cart-btn">+</button>
-                    </div>
+                    @empty
+                    <p>Chưa có sản phẩm trong danh mục này.</p>
+                    @endforelse
                 </div>
             </div>
+            @endforeach
         </div>
+
+        <div class="container">
+            <div class="product-section">
+                @foreach($categories as $cat)
+                <div class="section-header">
+                    <h2 class="section-title">{{ strtoupper($cat->ten_danh_muc) }} 🐭 🐁</h2>
+                    <div class="section-filters">
+                        <a class="filter-tab" href="">XEM THÊM →</a>
+                    </div>
+                </div>
+
+                <div class="products-grid">
+                    @forelse($cat->products as $p)
+                    @php
+                    $percent = ($p->gia && $p->gia_khuyen_mai && $p->gia > 0)
+                    ? round(100 - ($p->gia_khuyen_mai / $p->gia) * 100)
+                    : null;
+
+                    $img = $p->hinh_anh_chinh
+                    ? (preg_match('/^https?:\/\//', $p->hinh_anh_chinh)
+                    ? $p->hinh_anh_chinh
+                    : asset('storage/' . $p->hinh_anh_chinh))
+                    : asset('img/placeholder-product.jpg');
+                    @endphp
+
+                    <div class="product-item">
+                        @if($percent)
+                        <div class="discount-label">-{{ $percent }}%</div>
+                        @endif
+
+                        <img src="{{ $img }}" alt="{{ $p->ten_san_pham }}" class="product-image">
+
+                        <div class="product-info">
+                            <div class="product-code">Mã: {{ $p->sku }}</div>
+                            <div class="product-name">{{ $p->ten_san_pham }}</div>
+                            <div class="product-status">
+                                @switch($p->trang_thai)
+                                @case('con_hang') Còn hàng @break
+                                @case('het_hang') Hết hàng @break
+                                @case('sap_ve') Sắp về @break
+                                @default Đang cập nhật
+                                @endswitch
+                            </div>
+                            <div class="product-pricing">
+                                @if($p->gia_khuyen_mai)
+                                <div class="original-price">{{ number_format($p->gia, 0, ',', '.') }}đ</div>
+                                <div class="current-price">{{ number_format($p->gia_khuyen_mai, 0, ',', '.') }}đ</div>
+                                @else
+                                <div class="current-price">{{ number_format($p->gia, 0, ',', '.') }}đ</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <button class="add-to-cart-btn">+</button>
+                    </div>
+                    @empty
+                    <p>Chưa có sản phẩm trong danh mục này.</p>
+                    @endforelse
+                </div>
+                @endforeach
+            </div>
+
+        </div>
+
 
         <!-- GAMING GEAR Section -->
         <div class="container">
@@ -730,74 +772,50 @@
             this.style.boxShadow = "none";
         });
 
-        // Cart click handler
-        document
-            .querySelector(".cart")
-            .addEventListener("click", function() {
-                alert("Giỏ hàng được click!");
-            });
 
-        // Category button click handler
-        document
-            .querySelector(".category-btn")
-            .addEventListener("click", function() {
-                alert("Danh mục được click!");
-            });
-
-        // Sidebar item click handlers
-        document.querySelectorAll(".sidebar-item").forEach((item) => {
-            item.addEventListener("click", function() {
-                const category = this.querySelector("span").textContent;
-                alert(`Danh mục "${category}" được chọn!`);
-            });
-        });
 
         // Product card click handlers
-        document.querySelectorAll(".product-btn").forEach((btn) => {
-            btn.addEventListener("click", function() {
-                const productTitle =
-                    this.parentElement.querySelector(
-                        ".product-title"
-                    ).textContent;
-                alert(`Sản phẩm "${productTitle}" được thêm vào giỏ hàng!`);
-            });
-        });
 
-        // Hero button click handler
-        document
-            .querySelector(".hero-btn")
-            .addEventListener("click", function() {
-                alert("Chuyển đến trang sản phẩm lót chuột!");
-            });
 
-        // Filter tab handlers
-        document.querySelectorAll(".filter-tab").forEach((tab) => {
-            tab.addEventListener("click", function() {
-                // Remove active class from siblings
-                this.parentElement
-                    .querySelectorAll(".filter-tab")
-                    .forEach((t) => t.classList.remove("active"));
-                // Add active class to clicked tab
-                this.classList.add("active");
 
-                const filterName = this.textContent;
-                alert(`Lọc theo: ${filterName}`);
-            });
-        });
 
-        // Add to cart button handlers
-        document.querySelectorAll(".add-to-cart-btn").forEach((btn) => {
-            btn.addEventListener("click", function() {
-                const productName =
-                    this.parentElement.querySelector(
-                        ".product-name"
-                    ).textContent;
-                alert(`Đã thêm "${productName}" vào giỏ hàng!`);
 
-                // Update cart badge
-                const cartBadge = document.querySelector(".cart-badge");
-                let currentCount = parseInt(cartBadge.textContent);
-                cartBadge.textContent = currentCount + 1;
+
+
+        function toggleCartDropdown() {
+            const dropdown = document.getElementById('cart-dropdown');
+            dropdown.classList.toggle('visible');
+            dropdown.classList.toggle('show'); // thêm .show { display: block }
+
+        }
+    </script>
+    <script>
+        document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const productId = this.dataset.id;
+
+                fetch("{{ route('cart.add') }}", {
+
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        },
+                        body: JSON.stringify({
+                            product_id: productId
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            alert(data.message);
+
+                            document.querySelector('.cart-badge').textContent = data.totalQuantity;
+                        } else {
+                            alert('Lỗi: ' + data.message);
+                        }
+                    })
+                    .catch(err => console.error(err));
             });
         });
     </script>

@@ -1,0 +1,276 @@
+ :root {
+     --bg: #f7f8fa;
+     --card: #fff;
+     --muted: #6b7280;
+     --text: #111827;
+     --brand: #0aa37f;
+     --brand-2: #f59e0b;
+     --danger: #ef4444;
+     --line: #e5e7eb;
+     --shadow: 0 1px 4px rgba(0, 0, 0, .08);
+     --radius: 12px;
+ }
+
+ * {
+     box-sizing: border-box
+ }
+
+ html,
+ body {
+     height: 100%
+ }
+
+ body {
+     margin: 0;
+     background: var(--bg);
+     color: var(--text);
+     font: 14px/1.5 ui-sans-serif, system-ui, Segoe UI, Roboto
+ }
+
+ .app {
+     display: grid;
+     grid-template-columns: 260px minmax(0, 1fr);
+     min-height: 100vh
+ }
+
+ /* Sidebar */
+ .side {
+     background: #fff;
+     border-right: 1px solid var(--line);
+     display: flex;
+
+     flex-direction: column;
+     height: 100vh;
+
+ }
+
+ .side .brand {
+     display: flex;
+     align-items: center;
+     gap: 10px;
+     padding: 16px 18px;
+     font-weight: 700
+ }
+
+ .side .brand img {
+     width: 28px;
+     height: 28px;
+     border-radius: 50%
+ }
+
+ .menu {
+     flex: 1;
+     /* chiếm phần còn lại dưới brand */
+     overflow: auto;
+     /* hiện scrollbar khi tràn */
+     padding: 8px;
+     padding-bottom: 16px;
+ }
+
+ .mi {
+     display: flex;
+     align-items: center;
+     gap: 12px;
+     padding: 10px 12px;
+     border-radius: 10px;
+     color: #1f2937;
+     text-decoration: none
+ }
+
+ .mi svg {
+     width: 18px;
+     height: 18px
+ }
+
+ .mi.active,
+ .mi:hover {
+     background: #f0fdf4;
+     color: #065f46
+ }
+
+ .menu h6 {
+     margin: 10px 12px 6px;
+     color: var(--muted);
+     font-size: 12px;
+     font-weight: 600
+ }
+
+ /* Topbar */
+ .top {
+     display: flex;
+     align-items: center;
+     gap: 12px;
+     background: #fff;
+     padding: 10px 16px;
+     border-bottom: 1px solid var(--line)
+ }
+
+ .top .back {
+     display: flex;
+     align-items: center;
+     gap: 6px;
+     color: #374151;
+     text-decoration: none
+ }
+
+ .top .title {
+     font-weight: 700
+ }
+
+ .top .sep {
+     flex: 1
+ }
+
+ .chip {
+     background: #eef2ff;
+     color: #4338ca;
+     border-radius: 999px;
+     padding: 4px 10px;
+     font-size: 12px;
+     font-weight: 600
+ }
+
+ /* Content */
+ .content {
+     padding: 18px
+ }
+
+ .grid {
+     display: grid;
+     gap: 16px
+ }
+
+ .kpis {
+     grid-template-columns: repeat(5, minmax(0, 1fr))
+ }
+
+ .card {
+     background: var(--card);
+     border-radius: var(--radius);
+     box-shadow: var(--shadow)
+ }
+
+ .kpi {
+     padding: 14px 16px
+ }
+
+ .kpi .lbl {
+     font-size: 12px;
+     color: var(--muted);
+     margin-bottom: 6px
+ }
+
+ .kpi .val {
+     font-size: 28px;
+     font-weight: 800;
+     color: #111827
+ }
+
+ .kpi.green .val {
+     color: var(--brand)
+ }
+
+ .kpi.orange .val {
+     color: var(--brand-2)
+ }
+
+ .kpi.red .val {
+     color: var(--danger)
+ }
+
+ /* Tabs */
+ .tabs {
+     display: flex;
+     gap: 14px;
+     overflow: auto;
+     padding: 10px 12px;
+     border-bottom: 1px solid var(--line)
+ }
+
+ .tab {
+     padding: 8px 12px;
+     border-radius: 999px;
+     background: #f3f4f6;
+     color: #374151;
+     white-space: nowrap;
+     font-weight: 600;
+     font-size: 13px;
+     cursor: pointer
+ }
+
+ .tab.active {
+     background: #0ea5e9;
+     color: #fff
+ }
+
+ .chart-wrap {
+     padding: 10px 14px
+ }
+
+ .chart-head {
+     display: flex;
+     align-items: center;
+     gap: 10px;
+     margin-bottom: 6px;
+     color: var(--muted);
+     font-size: 12px
+ }
+
+ .view-switch {
+     margin-left: auto;
+     background: #f3f4f6;
+     border-radius: 10px;
+     overflow: hidden
+ }
+
+ .view-switch button {
+     border: 0;
+     background: transparent;
+     padding: 6px 10px;
+     cursor: pointer
+ }
+
+ .view-switch button.active {
+     background: #10b981;
+     color: #fff
+ }
+
+ /* Table mini */
+ .t {
+     width: 100%;
+     border-collapse: separate;
+     border-spacing: 0
+ }
+
+ .t th,
+ .t td {
+     padding: 10px 12px;
+     border-bottom: 1px solid var(--line);
+     font-size: 13px
+ }
+
+ .t th {
+     color: #374151;
+     text-align: left;
+     background: #fafafa
+ }
+
+ .t tr:hover td {
+     background: #fcfcff
+ }
+
+ @media (max-width:1100px) {
+     .kpis {
+         grid-template-columns: repeat(2, minmax(0, 1fr))
+     }
+ }
+
+ @media (max-width:680px) {
+     .app {
+         grid-template-columns: 1fr
+     }
+
+     .side {
+         display: none
+     }
+ }
