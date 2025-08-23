@@ -1,0 +1,24 @@
+.breadcrumb {
+    font-size: 14px;
+    margin: 10px 0px 5px 16%;
+    /* top right bottom left */
+}
+
+.breadcrumb a {
+    color: #26282a;
+    text-decoration: none;
+    font-weight: 500;
+    /* chữ đậm hơn một chút */
+
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+    text-decoration: none;
+    /* vẫn không gạch chân */
+
+}
+
+.breadcrumb span {
+    color: #555;
+}

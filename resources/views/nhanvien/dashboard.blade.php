@@ -8,6 +8,10 @@
     <title>Chiến dịch tuyển dụng</title>
     <link rel="stylesheet" href="">
     <link rel="stylesheet" href="{{ asset('css/nhanvien/nhanvien.css') }}" />
+    <!-- co css tim kiem trong này  -->
+    <link rel="stylesheet" href="{{ asset('css/nhanvien/timkiem.css') }}" />
+
+
 
     <!-- <link rel="stylesheet" href="{{ asset('css/login.css') }}" /> -->
 
@@ -27,9 +31,10 @@
             </div>
 
             <nav class="menu">
-                <a class="mi active" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <a class="mi active" href="{{ route('nhanvien.dashboard') }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M3 12l2-2 4 4 8-8 4 4" stroke-width="2" />
                     </svg> Trang chủ</a>
+
 
                 <div class="mi has-sub {{ request()->routeIs('nhanvien.danhsachsanpham') ? 'active' : '' }}">
                     <div class="menu-parent">
@@ -39,11 +44,14 @@
                         <span>Quản lý sản phẩm</span>
                     </div>
                     <div class="submenu">
-                        <a href="{{ route('nhanvien.danhsachsanpham') }}">Danh sách sản phẩm</a>
+                        <a href="{{ route('nhanvien.sanpham.them') }}">Thêm sản phẩm</a>
 
-                        <a href="{{ route('nhanvien.sanpham') }}">Thêm sản phẩm</a>
+                        <a href="{{ route('nhanvien.danhsachsanpham') }}">Danh sách sản phẩm</a>
+                        <a href="">Danh sách thương hiệu</a>
+                        <a href="">Danh danh mục</a>
 
                     </div>
+
                 </div>
 
 
@@ -76,113 +84,23 @@
             </nav>
         </aside>
 
+
         <!-- Main -->
         <main>
-            <!-- Topbar -->
             <div class="top">
-
-                <div class="title">Chi tiết chiến dịch:</div>
-                <div style="font-weight:700">Telesale Làm Việc Tạ</div>
-                <div class="sep"></div>
-                <span class="chip">Điểm tối ưu: 78%</span>
+                <form class="top-search" action="#" method="GET" role="search">
+                    <input type="text" name="q" class="top-search-input" placeholder="Tìm sản phẩm, danh mục, thương hiệu..." autocomplete="off" />
+                    <button class="top-search-btn" aria-label="Tìm kiếm">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <line x1="16.65" y1="16.65" x2="21" y2="21"></line>
+                        </svg>
+                    </button>
+                </form>
             </div>
 
-            <div class="content">
-                <!-- KPIs -->
-                <div class="grid kpis">
-                    <div class="card kpi">
-                        <div class="lbl">TỔNG LƯỢNG CV ỨNG VIÊN</div>
-                        <div class="val">85</div>
-                    </div>
-                    <div class="card kpi green">
-                        <div class="lbl">CV ỨNG TUYỂN</div>
-                        <div class="val">79</div>
-                    </div>
-                    <div class="card kpi red">
-                        <div class="lbl">CV MỞ LIÊN HỆ</div>
-                        <div class="val">6</div>
-                    </div>
-                    <div class="card kpi orange">
-                        <div class="lbl">SỐ CREDIT ĐÃ SỬ DỤNG</div>
-                        <div class="val">95</div>
-                    </div>
-                    <div class="card kpi">
-                        <div class="lbl">SỐ LƯỢT MỞ CV ĐÃ DÙNG</div>
-                        <div class="val">0</div>
-                    </div>
-                </div>
+            acbbbb
 
-                <!-- Tabs + Chart -->
-                <div class="card" style="margin-top:16px;">
-                    <div class="tabs">
-                        <div class="tab active">Tin tuyển dụng</div>
-                        <div class="tab">CV ứng tuyển <span style="background:#fee2e2;color:#b91c1c;margin-left:6px;padding:2px 6px;border-radius:999px">2</span></div>
-                        <div class="tab">Ứng viên đã xem tin <span style="background:#e0f2fe;color:#0369a1;margin-left:6px;padding:2px 6px;border-radius:999px">545</span></div>
-                        <div class="tab">CV Scout</div>
-                        <div class="tab">CV tìm kiếm</div>
-                        <div class="tab">CV đang theo dõi</div>
-                        <div class="tab">CV được hỗ trợ</div>
-                        <div class="tab">Dịch vụ</div>
-                    </div>
-
-                    <div class="chart-wrap">
-                        <div class="chart-head">
-                            <div>7 ngày qua</div>
-                            <div style="display:flex;align-items:center;gap:16px;margin-left:14px">
-                                <span>Đẩy top tự động gần nhất lúc 18:56 02/11/2021</span>
-                            </div>
-                            <div class="view-switch">
-                                <button class="active">Giờ</button>
-                                <button>Ngày</button>
-                            </div>
-                        </div>
-                        <canvas id="chart" height="120"></canvas>
-
-                        <div style="display:flex;gap:18px;margin-top:10px;color:var(--muted);font-size:12px">
-                            <span>● Lượt hiển thị</span>
-                            <span>● Lượt xem</span>
-                            <span>● Lượt ứng tuyển</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Table mini -->
-                <div class="card" style="margin-top:16px;">
-                    <table class="t">
-                        <thead>
-                            <tr>
-                                <th>Thao tác</th>
-                                <th>Tin tuyển dụng</th>
-                                <th>Số lần hiển thị</th>
-                                <th>Số lượt xem</th>
-                                <th>Tỷ lệ xem tin</th>
-                                <th>Số lượt ứng tuyển</th>
-                                <th>Tỷ lệ ứng tuyển</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><a href="#" style="color:#0ea5e9;text-decoration:none">Chi tiết</a></td>
-                                <td>Telesale Làm Việc Tại Văn Phòng Ở Quận Tân…</td>
-                                <td>4711</td>
-                                <td>492</td>
-                                <td>10.44%</td>
-                                <td>21</td>
-                                <td>4.27%</td>
-                            </tr>
-                            <tr>
-                                <td><a href="#" style="color:#0ea5e9;text-decoration:none">Chi tiết</a></td>
-                                <td>Nhân viên CSKH part-time</td>
-                                <td>2331</td>
-                                <td>210</td>
-                                <td>9.01%</td>
-                                <td>8</td>
-                                <td>3.81%</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
         </main>
     </div>
 

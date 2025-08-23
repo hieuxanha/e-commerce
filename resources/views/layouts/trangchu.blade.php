@@ -5,6 +5,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lắc Đầu - E-commerce</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <link rel="stylesheet" href="../css/header.css" />
     <!-- <link rel="stylesheet" href="../css/homepage.css" /> -->
     <link rel="stylesheet" href="../css/footer.css" />
@@ -14,197 +18,9 @@
 
 <body>
     <!-- Top Navigation Bar -->
-    <div class="top-nav">
-        <div class="container_header">
-            <div class="top-nav-content">
-                <!-- Left side - Location and Hotline -->
-                <div class="nav-left">
-                    <div class="nav-item">
-                        <svg class="icon" viewBox="0 0 20 20">
-                            <path
-                                fill-rule="evenodd"
-                                d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        <span>Địa chỉ liên hệ</span>
-                    </div>
-                    <div class="nav-item">
-                        <svg class="icon" viewBox="0 0 20 20">
-                            <path
-                                d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                        </svg>
-                        <span>Hotline trực tuyến</span>
-                    </div>
-                </div>
-                <!-- Right side - Social Media and Auth -->
-                <div class="nav-right">
-                    <div class="social-links">
-                        <a href="#">Shopee</a>
-                        <a href="#">Lazada</a>
-                        <a href="#">Instagram</a>
-                        <a href="#">Tiktok</a>
-                        <a href="#">Youtube</a>
-                        <a href="#">Facebook</a>
-                    </div>
-                    <div class="auth-section">
-                        <div class="nav-item">
-                            <svg class="icon" viewBox="0 0 20 20">
-                                <path
-                                    fill-rule="evenodd"
-                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span>Tin tức</span>
-                        </div>
-                        @auth
-                        <div class="nav-item">
-                            <svg class="icon" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="..." />
-                            </svg>
-                            <span>Xin chào, {{ Auth::user()->name }}</span>
-                        </div>
-                        <div class="nav-item">
-                            <form action="{{ route('logout') }}" method="POST" style="display:inline">
-                                @csrf
-                                <button type="submit" style="background:none;border:none;color:inherit;cursor:pointer;">
-                                    Đăng xuất
-                                </button>
-                            </form>
-                        </div>
-                        @else
-                        <div class="nav-item">
-                            <svg class="icon" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="..." />
-                            </svg>
-                            <span><a href="{{ route('register') }} ">Đăng ký</a>
-                                <a href="{{route('login') }} "> / Đăng nhập</a></span>
-                        </div>
-                        @endauth
-
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    @include('layouts.header')
     <!-- Main Header -->
-    <div class="main-header">
-        <div class="container_header">
-            <div class="header-content">
-                <!-- Logo -->
-                <div class="logo">
-                    <div class="logo-icon">
-                        <img src="../img/logo_web.jpg" alt="Lắc Đầu Logo" />
-                    </div>
-                </div>
-                <!-- Categories Button and Search -->
-                <div class="search-section">
-                    <button class="category-btn">
-                        <svg class="icon" viewBox="0 0 20 20">
-                            <path
-                                fill-rule="evenodd"
-                                d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        <span>DANH MỤC</span>
-                    </button>
-                    <div class="search-input-container">
-                        <input
-                            type="text"
-                            placeholder="Bạn cần tìm gì?"
-                            class="search-input" />
-                        <button class="search-btn">
-                            <svg class="icon" viewBox="0 0 20 20">
-                                <path
-                                    fill-rule="evenodd"
-                                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <!-- Right side - Contact and Cart -->
-                <div class="right-section">
-                    <!-- Hotline -->
-                    <div class="contact-item">
-                        <div class="contact-icon hotline-icon">
-                            <svg class="icon" viewBox="0 0 20 20">
-                                <path
-                                    d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                            </svg>
-                        </div>
-                        <div class="contact-text">
-                            <div class="contact-label">Hotline</div>
-                            <div class="contact-value">0349.296.461</div>
-                        </div>
-                    </div>
-                    <!-- Consultation -->
-                    <div class="contact-item">
-                        <div class="contact-icon consultation-icon">
-                            <svg class="icon" viewBox="0 0 20 20">
-                                <path
-                                    d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
-                            </svg>
-                        </div>
-                        <div class="contact-text">
-                            <div class="contact-label">
-                                Tư vấn trực tiếp
-                            </div>
-                        </div>
-                    </div>
-                    <!-- GÓI TOÀN BỘ TRONG THẺ CHA -->
-                    @php
-                    use Illuminate\Support\Facades\Auth;
-                    $user = Auth::user();
-                    $cartItems = \App\Models\CartItem::with('product')->where('user_id', optional($user)->id)->get();
-                    $totalQuantity = $cartItems->sum('quantity');
-                    $totalAmount = $cartItems->reduce(function ($carry, $item) {
-                    $price = $item->product->gia_khuyen_mai ?? $item->product->gia;
-                    return $carry + $price * $item->quantity;
-                    }, 0);
-                    @endphp
 
-                    <div class="cart-wrapper" style="position: relative">
-                        <div class="cart" onclick="toggleCartDropdown()">
-                            <span>Giỏ hàng</span>
-                            <span class="cart-badge">{{ $totalQuantity }}</span>
-                        </div>
-
-                        <!-- DROPDOWN GIỎ HÀNG -->
-                        <div id="cart-dropdown" class="cart-dropdown">
-                            @forelse($cartItems as $item)
-                            @php
-                            $price = $item->product->gia_khuyen_mai ?? $item->product->gia;
-                            $itemTotal = $price * $item->quantity;
-                            @endphp
-                            <div class="cart-item">
-                                <img src="{{ asset('storage/' . $item->product->hinh_anh_chinh) }}" width="60" height="60">
-                                <div>
-                                    <strong>{{ $item->product->ten_san_pham }}</strong>
-                                    <br>
-                                    x{{ $item->quantity }}<br>
-                                    <strong>{{ number_format($itemTotal, 0, ',', '.') }}đ</strong>
-                                </div>
-                            </div>
-                            @empty
-                            <p style="padding: 10px">Chưa có sản phẩm trong giỏ hàng.</p>
-                            @endforelse
-
-                            @if($totalQuantity > 0)
-                            <div class="cart-total">
-                                Tổng tiền hàng ({{ $totalQuantity }} sản phẩm):
-                                <strong>{{ number_format($totalAmount, 0, ',', '.') }}đ</strong>
-                            </div>
-                            <a href="{{ route('cart.checkout') }}" class="btn-primary" style="display:block; text-align:center">THANH TOÁN NGAY</a>
-                            @endif
-                        </div>
-                    </div>
-
-
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Main Content Layout -->
     <div class="container">
@@ -369,7 +185,7 @@
         </div>
 
 
-        <!-- LỚT CHUỘT Section -->
+
         <div class="container">
             @foreach($categories as $cat)
             <div class="product-section"> {{-- ✅ Tách mỗi danh mục thành 1 block riêng --}}
@@ -402,8 +218,15 @@
                         <img src="{{ $img }}" alt="{{ $p->ten_san_pham }}" class="product-image">
 
                         <div class="product-info">
-                            <div class="product-code">Mã: {{ $p->sku }}</div>
-                            <div class="product-name">{{ $p->ten_san_pham }}</div>
+                            @php
+                            $detailUrl = !empty($p->slug)
+                            ? route('sanpham.chitiet', ['slug' => $p->slug])
+                            : route('sanpham.chitiet.id', ['id' => $p->id]);
+                            @endphp
+
+                            <a href="{{ $detailUrl }}" class="product-name d-block">
+                                {{ $p->ten_san_pham }}
+                            </a>
                             <div class="product-status">
                                 @switch($p->trang_thai)
                                 @case('con_hang') Còn hàng @break
@@ -422,7 +245,7 @@
                             </div>
                         </div>
 
-                        <button class="add-to-cart-btn" data-id="{{ $p->id }}">+</button>
+                        <button class="add-to-cart-btn" data-id="{{ $p->id }}"> <i class="fas fa-shopping-cart"></i></button>
                     </div>
                     @empty
                     <p>Chưa có sản phẩm trong danh mục này.</p>
@@ -431,71 +254,10 @@
             </div>
             @endforeach
         </div>
-
-        <div class="container">
-            <div class="product-section">
-                @foreach($categories as $cat)
-                <div class="section-header">
-                    <h2 class="section-title">{{ strtoupper($cat->ten_danh_muc) }} 🐭 🐁</h2>
-                    <div class="section-filters">
-                        <a class="filter-tab" href="">XEM THÊM →</a>
-                    </div>
-                </div>
-
-                <div class="products-grid">
-                    @forelse($cat->products as $p)
-                    @php
-                    $percent = ($p->gia && $p->gia_khuyen_mai && $p->gia > 0)
-                    ? round(100 - ($p->gia_khuyen_mai / $p->gia) * 100)
-                    : null;
-
-                    $img = $p->hinh_anh_chinh
-                    ? (preg_match('/^https?:\/\//', $p->hinh_anh_chinh)
-                    ? $p->hinh_anh_chinh
-                    : asset('storage/' . $p->hinh_anh_chinh))
-                    : asset('img/placeholder-product.jpg');
-                    @endphp
-
-                    <div class="product-item">
-                        @if($percent)
-                        <div class="discount-label">-{{ $percent }}%</div>
-                        @endif
-
-                        <img src="{{ $img }}" alt="{{ $p->ten_san_pham }}" class="product-image">
-
-                        <div class="product-info">
-                            <div class="product-code">Mã: {{ $p->sku }}</div>
-                            <div class="product-name">{{ $p->ten_san_pham }}</div>
-                            <div class="product-status">
-                                @switch($p->trang_thai)
-                                @case('con_hang') Còn hàng @break
-                                @case('het_hang') Hết hàng @break
-                                @case('sap_ve') Sắp về @break
-                                @default Đang cập nhật
-                                @endswitch
-                            </div>
-                            <div class="product-pricing">
-                                @if($p->gia_khuyen_mai)
-                                <div class="original-price">{{ number_format($p->gia, 0, ',', '.') }}đ</div>
-                                <div class="current-price">{{ number_format($p->gia_khuyen_mai, 0, ',', '.') }}đ</div>
-                                @else
-                                <div class="current-price">{{ number_format($p->gia, 0, ',', '.') }}đ</div>
-                                @endif
-                            </div>
-                        </div>
-
-                        <button class="add-to-cart-btn">+</button>
-                    </div>
-                    @empty
-                    <p>Chưa có sản phẩm trong danh mục này.</p>
-                    @endforelse
-                </div>
-                @endforeach
-            </div>
-
-        </div>
+        <!-- nháp 2 -->
 
 
+        <!-- dũlieeuj tĩnh -->
         <!-- GAMING GEAR Section -->
         <div class="container">
             <div class="product-section">

@@ -40,4 +40,11 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class, 'category_id');
     }
+
+    public function getDetailUrlAttribute()
+    {
+        return $this->slug
+            ? route('sanpham.chitiet', ['slug' => $this->slug])
+            : route('sanpham.chitiet.id', ['id' => $this->id]);
+    }
 }

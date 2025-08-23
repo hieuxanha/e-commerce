@@ -55,4 +55,11 @@ class CartController extends Controller
             'totalQuantity' => $totalQuantity,
         ]);
     }
+    public function remove($id)
+    {
+        $item = CartItem::findOrFail($id);
+        $item->delete();
+
+        return back()->with('success', 'Đã xóa sản phẩm khỏi giỏ hàng');
+    }
 }
