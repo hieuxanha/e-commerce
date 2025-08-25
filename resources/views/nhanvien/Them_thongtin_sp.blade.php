@@ -237,60 +237,7 @@
     </script>
     <!-- Chart.js CDN (chỉ để vẽ demo UI) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const ctx = document.getElementById('chart');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['27/10', '28/10', '29/10', '30/10', '31/10', '01/11', '02/11'],
-                datasets: [{
-                        label: 'Lượt hiển thị',
-                        data: [30, 55, 20, 90, 40, 160, 120],
-                        borderWidth: 2,
-                        tension: .35
-                    },
-                    {
-                        label: 'Lượt xem',
-                        data: [5, 10, 7, 22, 12, 28, 18],
-                        borderWidth: 2,
-                        tension: .35
-                    },
-                    {
-                        label: 'Ứng tuyển',
-                        data: [1, 2, 1, 4, 2, 6, 3],
-                        borderWidth: 2,
-                        tension: .35
-                    },
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        grid: {
-                            color: '#f1f5f9'
-                        },
-                        ticks: {
-                            color: '#64748b'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            color: '#64748b'
-                        }
-                    }
-                }
-            }
-        });
-    </script>
+
 </body>
 
 </html>

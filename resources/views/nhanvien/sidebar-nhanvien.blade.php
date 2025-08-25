@@ -12,11 +12,11 @@
      </div>
 
      <nav class="menu">
-         <a class="mi active" href="{{ route('nhanvien.dashboard') }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+         <a class="mi " href="{{ route('nhanvien.dashboard') }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                  <path d="M3 12l2-2 4 4 8-8 4 4" stroke-width="2" />
              </svg> Trang chủ</a>
 
-         <div class="mi has-sub {{ request()->routeIs('nhanvien.danhsachsanpham') ? 'active' : '' }}">
+         <div class="mi has-sub {{ request()->routeIs('nhanvien.danhsachsanpham') ? '' : '' }}">
              <div class="menu-parent">
                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                      <circle cx="12" cy="12" r="9" stroke-width="2" />
@@ -27,9 +27,11 @@
                  <a href="{{ route('nhanvien.sanpham.them') }}">Thêm sản phẩm</a>
 
                  <a href="{{ route('nhanvien.danhsachsanpham') }}">Danh sách sản phẩm</a>
-                 <a href="">Danh sách thương hiệu</a>
-                 <a href="">Danh danh mục</a>
-
+                 <a href="{{ route('nhanvien.brands.index') }}">
+                     Xem danh sách thương hiệu
+                 </a>
+                 <a href="{{ route('nhanvien.categories.index') }}">
+                     Danh danh mục</a>
              </div>
 
          </div>

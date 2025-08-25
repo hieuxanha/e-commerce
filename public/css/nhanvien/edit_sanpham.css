@@ -1,0 +1,8 @@
+ .container {
+     margin-top: 20px;
+     /* cách topbar 16px */
+     margin-left: 20px;
+     /* lùi khỏi sidebar 16px */
+     margin-right: 20px;
+     /* thêm nếu muốn cân đối */
+ }

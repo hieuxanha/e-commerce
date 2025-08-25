@@ -31,13 +31,15 @@
                 </div>
 
                 <div class="social-media-icons">
-                    <a href="#" aria-label="Facebook"><img src="/placeholder.svg?height=24&width=24" alt="Facebook"></a>
-                    <a href="#" aria-label="Instagram"><img src="/placeholder.svg?height=24&width=24" alt="Instagram"></a>
-                    <a href="#" aria-label="TikTok"><img src="/placeholder.svg?height=24&width=24" alt="TikTok"></a>
-                    <a href="#" aria-label="Email"><img src="/placeholder.svg?height=24&width=24" alt="Email"></a>
-                    <a href="#" aria-label="Phone"><img src="/placeholder.svg?height=24&width=24" alt="Phone"></a>
-                    <a href="#" aria-label="YouTube"><img src="/placeholder.svg?height=24&width=24" alt="YouTube"></a>
+                    <a href="https://facebook.com/tenpage"><i class="bi bi-facebook"></i></a>
+                    <a href="https://instagram.com/tenpage"><i class="bi bi-instagram"></i></a>
+                    <a href="https://tiktok.com/@tenpage"><i class="bi bi-tiktok"></i></a>
+                    <a href="mailto:example@gmail.com"><i class="bi bi-envelope"></i></a>
+                    <a href="tel:0123456789"><i class="bi bi-telephone"></i></a>
+                    <a href="https://youtube.com/@tenkenh"><i class="bi bi-youtube"></i></a>
                 </div>
+
+
 
                 <div class="bocongthuong-badge">
                     <img src="/placeholder.svg?height=60&width=150" alt="Đã thông báo Bộ Công Thương">

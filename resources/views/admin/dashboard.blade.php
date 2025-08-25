@@ -21,7 +21,7 @@
             <div class="brand">
                 <img src="https://i.pravatar.cc/56?img=12" alt="">
                 <div>
-                    <div>ADMIN</div>
+                    <div>ADMIssssN</div>
                     <small style="color:var(--muted)">Silver</small>
                 </div>
             </div>
@@ -30,6 +30,14 @@
                 <a class="mi active" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M3 12l2-2 4 4 8-8 4 4" stroke-width="2" />
                     </svg> Trang chủ</a>
+                <a class="mi {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}"
+                    href="{{ route('admin.reviews.index') }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M21 15a4 4 0 0 1-4 4H8l-5 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8z" stroke-width="2" />
+                    </svg>
+                    Quản lý đánh giá
+                </a>
+
                 <a class="mi" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <circle cx="12" cy="12" r="9" stroke-width="2" />
                     </svg> Quản lý sản phẩm</a>
