@@ -137,7 +137,7 @@
                 <div class="modal-body">
                     <div class="row g-3">
                         <div class="col-md-4">
-                            <div class="ratio ratio-3x4">
+                            <div class="">
                                 <img id="pd-image" src="" alt="Ảnh sản phẩm" class="w-100 h-100" style="object-fit:cover;">
                             </div>
                         </div>

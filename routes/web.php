@@ -10,6 +10,8 @@ use App\Http\Controllers\CartController;
 // Khách (frontend)
 use App\Http\Controllers\ProductController as FrontProductController;
 use App\Http\Controllers\CartDetailController; // <— thêm dòng này
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ProfileController; // <— thêm dòng này
 
 // Nhân viên / Admin
 use App\Http\Controllers\NhanVien\ProductController as NhanVienProductController;
@@ -53,6 +55,19 @@ Route::post('/reviews', [ReviewController::class, 'store'])
     ->name('reviews.store')
     ->middleware('auth');
 
+
+// 👉 Vào trang profile (dùng view profile.blade.php)
+Route::get('/profile', [ProfileController::class, 'show'])
+    ->name('profile.index');
+
+// CHECKOUT (thông tin giao hàng + đặt hàng)
+// Route::get('/checkout', [CheckoutController::class, 'index'])
+//     ->name('checkout.index');
+// Route::post('/checkout/submit', [CheckoutController::class, 'submit'])
+//     ->name('checkout.submit');
+// Route::get('/order/placed', [CheckoutController::class, 'placed'])
+//     ->name('order.placed');
+
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register.form');
 Route::post('/register', [RegisterController::class, 'register'])->name('register');
 
@@ -69,6 +84,14 @@ Route::get('/san-pham/{slug}', [FrontProductController::class, 'show'])
 Route::get('/san-pham/id/{id}', [FrontProductController::class, 'showById'])
     ->whereNumber('id')
     ->name('sanpham.chitiet.id');
+
+Route::get('/thong-tin-giao-hang', [CheckoutController::class, 'index'])
+    ->name('checkout.info');
+Route::post('/checkout/submit', [CheckoutController::class, 'submit'])->name('checkout.submit');
+
+Route::get('/da-dat-hang', [CheckoutController::class, 'placed'])
+    ->name('order.placed');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -118,14 +141,13 @@ Route::prefix('nhanvien')->name('nhanvien.')->middleware('auth')->group(function
 
     Route::get('/thuong-hieu', [BrandFrontController::class, 'index'])
         ->name('brands.index');
+    Route::post('/brands', [BrandController::class, 'store'])->name('brands.store');
     Route::put('/brands/{brand}', [BrandFrontController::class, 'update'])->name('brands.update');
     Route::delete('/brands/{brand}', [BrandFrontController::class, 'destroy'])->name('brands.destroy');
     // Danh mục
     Route::get('/danh-muc', [CategoryController::class, 'index'])
         ->name('categories.index');
-
-
-
-    Route::post('/brands', [BrandController::class, 'store'])->name('brands.store');
+    Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');   // NEW
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy'); // NEW
     Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
 });

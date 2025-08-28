@@ -19,7 +19,18 @@ body {
 .top-nav {
     background-color: #0d9488;
     color: #fff;
-    font-size: 14px
+    font-size: 14px;
+    /* position: static; */
+    /* bỏ fixed nếu có */
+
+    /* top: 0;
+    z-index: 1100; */
+}
+
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 1100;
 }
 
 .top-nav-content {
@@ -90,7 +101,11 @@ body {
 /* ===== MAIN HEADER ===== */
 .main-header {
     background: #fff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, .1)
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
+    /* position: sticky;
+    top: 0;
+ 
+    z-index: 1090; */
 }
 
 .header-content {

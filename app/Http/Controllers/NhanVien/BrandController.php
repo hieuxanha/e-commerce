@@ -12,7 +12,7 @@ class BrandController extends Controller
     {
         $data = $r->validate([
             'ten_thuong_hieu' => 'required|string|max:100|unique:brands,ten_thuong_hieu',
-            'logo_url'        => 'nullable|string|max:255',
+            'logo_url'        => 'nullable|string|max:400',
             'mo_ta'           => 'nullable|string',
         ]);
 

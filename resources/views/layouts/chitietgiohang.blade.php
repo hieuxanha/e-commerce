@@ -253,7 +253,7 @@
                         <span>Tổng</span>
                         <strong id="grandTotalText">{{ number_format($calcTotal,0,',','.') }} đ</strong>
                     </div>
-                    <a href="{{ route('cart.checkout') }}" class="btn btn-success w-100 mt-3">Tiến hành đặt hàng</a>
+                    <a href="{{ route('checkout.info') }}" class="btn btn-success w-100 mt-3">Tiến hành đặt hàng</a>
                 </div>
             </div>
         </div>

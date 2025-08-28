@@ -8,6 +8,21 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
+    public function index(Request $request)
+    {
+        $q = trim((string) $request->get('q', ''));
+
+        $categories = Category::query()
+            ->when($q !== '', function ($qr) use ($q) {
+                $qr->where('ten_danh_muc', 'like', "%{$q}%");
+            })
+            ->orderBy('ten_danh_muc')
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('nhanvien.Ql_danhmuc', compact('categories', 'q'));
+    }
+
     public function store(Request $r)
     {
         $data = $r->validate([
@@ -17,24 +32,40 @@ class CategoryController extends Controller
         ]);
 
         Category::create($data);
-        return back()->with('ok', 'Đã thêm danh mục');
+        return back()->with('success', 'Đã thêm danh mục.');
     }
 
-    public function index(Request $request)
+    public function update(Request $r, Category $category)
     {
-        $q = trim((string) $request->get('q', ''));
+        $data = $r->validate([
+            'ten_danh_muc'    => 'required|string|max:100',
+            'danh_muc_cha_id' => 'nullable|integer|exists:categories,id|different:id',
+            'mo_ta'           => 'nullable|string',
+        ]);
 
-        $categories = \App\Models\Category::query()
-            ->when(
-                $q !== '',
-                fn($qr) =>
-                $qr->where('ten_danh_muc', 'like', "%{$q}%")
-                // ->orWhere('name', 'like', "%{$q}%") // ❌ bỏ vì không có cột name
-            )
-            ->orderBy('ten_danh_muc') // ❌ bỏ orderBy('name')
-            ->paginate(20)
-            ->withQueryString();
+        // Không cho chọn chính nó làm cha
+        if (!empty($data['danh_muc_cha_id']) && (int)$data['danh_muc_cha_id'] === (int)$category->id) {
+            return back()->withErrors('Danh mục cha không được là chính nó.');
+        }
 
-        return view('nhanvien.Ql_danhmuc', compact('categories', 'q'));
+        $category->update($data);
+        return back()->with('success', 'Đã cập nhật danh mục.');
+    }
+
+    public function destroy(Category $category)
+    {
+        // Tuỳ nghiệp vụ: chặn xoá nếu có con/sản phẩm
+        $hasChildren = Category::where('danh_muc_cha_id', $category->id)->exists();
+        if ($hasChildren) {
+            return back()->withErrors('Không thể xoá: danh mục đang có danh mục con.');
+        }
+
+        // Nếu có ràng buộc sản phẩm: kiểm tra tại đây (ví dụ cột category_id trong bảng products)
+        // if (\App\Models\Product::where('category_id', $category->id)->exists()) {
+        //     return back()->withErrors('Không thể xoá: còn sản phẩm thuộc danh mục này.');
+        // }
+
+        $category->delete();
+        return back()->with('success', 'Đã xoá danh mục.');
     }
 }

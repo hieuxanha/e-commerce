@@ -47,7 +47,7 @@ $img = $item->product->hinh_anh_chinh
 <a href="{{ route('cart.index') }}" class="btn btn-outline-secondary" style="display:block;text-align:center;margin-bottom:8px;">
     XEM GIỎ HÀNG
 </a>
-<a href="{{ route('cart.checkout') }}" class="btn btn-primary" style="display:block;text-align:center;">
+<a href="{{ route('checkout.info') }}" class="btn btn-primary" style="display:block;text-align:center;">
     THANH TOÁN NGAY
 </a>
 @endif

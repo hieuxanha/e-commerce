@@ -1,142 +1,148 @@
 {{-- ===== Header (Top bar + Main header) ===== --}}
-<div class="top-nav">
-    <div class="container_header">
-        <div class="top-nav-content">
-            {{-- Left: địa chỉ + hotline --}}
-            <div class="nav-left">
-                <div class="nav-item">
-                    <svg class="icon" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
-                    </svg>
-                    <span>Địa chỉ liên hệ</span>
-                </div>
-                <div class="nav-item">
-                    <svg class="icon" viewBox="0 0 20 20">
-                        <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                    </svg>
-                    <span>Hotline trực tuyến</span>
-                </div>
-            </div>
 
-            {{-- Right: social + auth --}}
-            <div class="nav-right">
-                <div class="social-links">
-                    <a href="#">Shopee</a><a href="#">Lazada</a><a href="#">Instagram</a>
-                    <a href="#">Tiktok</a><a href="#">Youtube</a><a href="#">Facebook</a>
-                </div>
-
-                <div class="auth-section">
+<div class="site-header">
+    <div class="top-nav">
+        <div class="container_header">
+            <div class="top-nav-content">
+                {{-- Left: địa chỉ + hotline --}}
+                <div class="nav-left">
                     <div class="nav-item">
                         <svg class="icon" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd" />
+                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
                         </svg>
-                        <span>Tin tức</span>
-                    </div>
-
-                    @auth
-                    <div class="nav-item">
-                        <svg class="icon" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16z" />
-                        </svg>
-                        <span>Xin chào, {{ Auth::user()->name }}</span>
+                        <span>Địa chỉ liên hệ</span>
                     </div>
                     <div class="nav-item">
-                        <form action="{{ route('logout') }}" method="POST" style="display:inline">
-                            @csrf
-                            <button type="submit" style="background:none;border:none;color:inherit;cursor:pointer;">Đăng xuất</button>
-                        </form>
-                    </div>
-                    @else
-                    <div class="nav-item">
-                        <svg class="icon" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16z" />
-                        </svg>
-                        <span><a href="{{ route('register') }}">Đăng ký</a><a href="{{ route('login') }}"> / Đăng nhập</a></span>
-                    </div>
-                    @endauth
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-{{-- ===== Main Header ===== --}}
-<div class="main-header">
-    <div class="container_header">
-        <div class="header-content">
-            {{-- Logo --}}
-            <div class="logo">
-                <div class="logo-icon"><img src="{{ asset('img/logo_web.jpg') }}" alt="Lắc Đầu Logo"></div>
-            </div>
-
-            {{-- Search + Danh mục --}}
-            <div class="search-section">
-                <button class="category-btn">
-                    <svg class="icon" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
-                    </svg>
-                    <span>DANH MỤC</span>
-                </button>
-                <div class="search-input-container">
-                    <input type="text" placeholder="Bạn cần tìm gì?" class="search-input">
-                    <button class="search-btn">
-                        <svg class="icon" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-            {{-- Right: hotline + tư vấn + giỏ hàng --}}
-            <div class="right-section">
-                <div class="contact-item">
-                    <div class="contact-icon hotline-icon">
                         <svg class="icon" viewBox="0 0 20 20">
                             <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                         </svg>
-                    </div>
-                    <div class="contact-text">
-                        <div class="contact-label">Hotline</div>
-                        <div class="contact-value">0349.296.461</div>
+                        <span>Hotline trực tuyến</span>
                     </div>
                 </div>
 
-                <div class="contact-item">
-                    <div class="contact-icon consultation-icon">
-                        <svg class="icon" viewBox="0 0 20 20">
-                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
-                        </svg>
-                    </div>
-                    <div class="contact-text">
-                        <div class="contact-label">Tư vấn trực tiếp</div>
-                    </div>
-                </div>
-
-                {{-- Mini cart --}}
-                @php
-                use Illuminate\Support\Facades\Auth;
-                $user = Auth::user();
-                $cartItems = \App\Models\CartItem::with('product')->where('user_id', optional($user)->id)->get();
-                $totalQuantity = (int) $cartItems->sum('quantity');
-                @endphp
-
-                <div class="cart-wrapper" style="position: relative">
-                    <div class="cart" onclick="toggleCartDropdown()">
-                        <span>Giỏ hàng</span>
-                        <span id="cartBadge" class="cart-badge">{{ $totalQuantity }}</span>
+                {{-- Right: social + auth --}}
+                <div class="nav-right">
+                    <div class="social-links">
+                        <a href="#">Shopee</a><a href="#">Lazada</a><a href="#">Instagram</a>
+                        <a href="#">Tiktok</a><a href="#">Youtube</a><a href="#">Facebook</a>
                     </div>
 
-                    <div id="cart-dropdown" class="cart-dropdown">
-                        {{-- truyền dữ liệu để view hiển thị ngay --}}
-                        @include('layouts.cart_dropdown', ['cartItems' => $cartItems, 'totalQuantity' => $totalQuantity])
+                    <div class="auth-section">
+                        <div class="nav-item">
+                            <svg class="icon" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Tin tức</span>
+                            <svg class="icon" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd" />
+                            </svg>
+                            <span><a href="{{ url('/profile') }}">Hồ sơ</a></span>
+                        </div>
+
+                        @auth
+                        <div class="nav-item">
+                            <svg class="icon" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16z" />
+                            </svg>
+                            <span>Xin chào, {{ Auth::user()->name }}</span>
+                        </div>
+                        <div class="nav-item">
+                            <form action="{{ route('logout') }}" method="POST" style="display:inline">
+                                @csrf
+                                <button type="submit" style="background:none;border:none;color:inherit;cursor:pointer;">Đăng xuất</button>
+                            </form>
+                        </div>
+                        @else
+                        <div class="nav-item">
+                            <svg class="icon" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16z" />
+                            </svg>
+                            <span><a href="{{ route('register') }}">Đăng ký</a><a href="{{ route('login') }}"> / Đăng nhập</a></span>
+                        </div>
+                        @endauth
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
+    {{-- ===== Main Header ===== --}}
+    <div class="main-header">
+        <div class="container_header">
+            <div class="header-content">
+                {{-- Logo --}}
+                <div class="logo">
+                    <div class="logo-icon"><img src="{{ asset('img/logo_web.jpg') }}" alt="Lắc Đầu Logo"></div>
+                </div>
+
+                {{-- Search + Danh mục --}}
+                <div class="search-section">
+                    <button class="category-btn">
+                        <svg class="icon" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
+                        </svg>
+                        <span>DANH MỤC</span>
+                    </button>
+                    <div class="search-input-container">
+                        <input type="text" placeholder="Bạn cần tìm gì?" class="search-input">
+                        <button class="search-btn">
+                            <svg class="icon" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Right: hotline + tư vấn + giỏ hàng --}}
+                <div class="right-section">
+                    <div class="contact-item">
+                        <div class="contact-icon hotline-icon">
+                            <svg class="icon" viewBox="0 0 20 20">
+                                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                            </svg>
+                        </div>
+                        <div class="contact-text">
+                            <div class="contact-label">Hotline</div>
+                            <div class="contact-value">0349.296.461</div>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon consultation-icon">
+                            <svg class="icon" viewBox="0 0 20 20">
+                                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
+                            </svg>
+                        </div>
+                        <div class="contact-text">
+                            <div class="contact-label">Tư vấn trực tiếp</div>
+                        </div>
+                    </div>
+
+                    {{-- Mini cart --}}
+                    @php
+                    use Illuminate\Support\Facades\Auth;
+                    $user = Auth::user();
+                    $cartItems = \App\Models\CartItem::with('product')->where('user_id', optional($user)->id)->get();
+                    $totalQuantity = (int) $cartItems->sum('quantity');
+                    @endphp
+
+                    <div class="cart-wrapper" style="position: relative">
+                        <div class="cart" onclick="toggleCartDropdown()">
+                            <span>Giỏ hàng</span>
+                            <span id="cartBadge" class="cart-badge">{{ $totalQuantity }}</span>
+                        </div>
+
+                        <div id="cart-dropdown" class="cart-dropdown">
+                            {{-- truyền dữ liệu để view hiển thị ngay --}}
+                            @include('layouts.cart_dropdown', ['cartItems' => $cartItems, 'totalQuantity' => $totalQuantity])
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 </div>
-
 {{-- Styles mini cart + toast --}}
 <style>
     .cart-dropdown {
