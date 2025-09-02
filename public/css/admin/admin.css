@@ -58,6 +58,7 @@
      border-radius: 50%
  }
 
+
  .menu {
      flex: 1;
      /* chiếm phần còn lại dưới brand */
@@ -66,6 +67,16 @@
      padding: 8px;
      padding-bottom: 16px;
  }
+
+ .side .mi {
+     white-space: normal;
+     /* cho phép xuống dòng */
+     word-break: break-word;
+     /* bẻ từ nếu quá dài (vd tên mục dài) */
+     line-height: 1.35;
+ }
+
+
 
  .mi {
      display: flex;
@@ -94,6 +105,44 @@
      font-size: 12px;
      font-weight: 600
  }
+
+ .mi.has-sub {
+     flex-direction: column;
+     align-items: flex-start;
+     cursor: pointer;
+ }
+
+ .mi.has-sub .menu-parent {
+     display: flex;
+     align-items: center;
+     gap: 12px;
+     padding: 1px 0px;
+     width: 100%;
+ }
+
+ .mi.has-sub .submenu {
+     display: none;
+     flex-direction: column;
+     padding-left: 24px;
+     padding-bottom: 8px;
+     width: 100%;
+ }
+
+ .mi.has-sub:hover .submenu {
+     display: flex;
+ }
+
+ .mi.has-sub .submenu a {
+     padding: 6px 0;
+     color: #4b5563;
+     font-size: 14px;
+     text-decoration: none;
+ }
+
+ .mi.has-sub .submenu a:hover {
+     color: #0ea5e9;
+ }
+
 
  /* Topbar */
  .top {
@@ -273,4 +322,42 @@
      .side {
          display: none
      }
+ }
+
+ /* === FORCE WRAP FOR ADMIN SIDEBAR === */
+ aside.side,
+ aside.side .menu {
+     min-width: 0;
+     overflow: auto;
+ }
+
+ aside.side .mi {
+     display: flex;
+     align-items: flex-start;
+     gap: 12px;
+     min-width: 0;
+     /* QUAN TRỌNG */
+     white-space: normal !important;
+     /* thắng mọi nowrap rò rỉ */
+     overflow-wrap: anywhere;
+     word-break: break-word;
+     line-height: 1.35;
+ }
+
+ aside.side .mi>* {
+     min-width: 0;
+ }
+
+ aside.side .mi svg {
+     flex: 0 0 18px;
+     width: 18px;
+     height: 18px;
+     /* icon cố định, không đẩy text */
+ }
+
+ /* nếu có bọc label */
+ aside.side .mi .mi-label {
+     white-space: normal !important;
+     overflow-wrap: anywhere;
+     min-width: 0;
  }

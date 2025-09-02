@@ -329,6 +329,7 @@ body {
     width: 100%;
 }
 
+/* phan than duoi  trang chu */
 /* ===== MAIN LAYOUT ===== */
 .main-layout {
     display: grid;
@@ -589,7 +590,17 @@ body {
     margin-bottom: 8px;
     line-height: 1.4;
     height: 40px;
-    overflow: hidden
+    overflow: hidden;
+    text-decoration: none;
+    /* Bỏ gạch chân */
+
+}
+
+.product-name:hover {
+    color: #0eb75d;
+    /* Đổi màu khi hover (tùy ý) */
+    text-decoration: none;
+    /* Đảm bảo hover cũng không bị gạch chân */
 }
 
 .product-status {

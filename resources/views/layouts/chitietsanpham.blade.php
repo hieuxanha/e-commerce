@@ -76,6 +76,30 @@
             padding: 5px 10px;
             margin-top: 5px;
         }
+
+        .product-detail-row {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .1);
+            border-radius: 10px;
+            background: #fff;
+            padding-bottom: 30px;
+            /* tăng khoảng cách bên trong */
+            margin-bottom: 30px;
+            /* tăng khoảng cách bên ngoài */
+        }
+
+        /* chiettiet noi dung */
+        .product-description {
+            max-height: 80px;
+            /* hiển thị trước 200px */
+            overflow: hidden;
+            position: relative;
+            transition: max-height 0.3s ease;
+        }
+
+        .product-description.expanded {
+            max-height: none;
+            /* khi mở rộng thì hiển thị toàn bộ */
+        }
     </style>
 </head>
 
@@ -95,7 +119,7 @@
 
     {{-- Nội dung --}}
     <div class="product-detail container py-4">
-        <div class="row g-4 align-items-start">
+        <div class="row g-4 align-items-start product-detail-row">
             {{-- Cột ảnh --}}
             <div class="col-lg-5">
                 <div class="main-image border rounded p-2 mb-3 bg-white">
@@ -124,7 +148,10 @@
                         @if(!empty($product->mo_ta_chi_tiet))
                         <div class="mt-4 mb-2">
                             <h5>Mô tả chi tiết</h5>
-                            <div class="text-secondary">{!! nl2br(e($product->mo_ta_chi_tiet)) !!}</div>
+
+                            <div id="descBox" class="product-description text-secondary">{!! nl2br(e($product->mo_ta_chi_tiet)) !!}</div>
+                            <a href="javascript:void(0)" id="toggleDesc" class="text-success">Xem thêm ⭢</a>
+
                         </div>
                         @endif
 
@@ -140,6 +167,9 @@
                         </div>
 
                         {{-- Mô tả ngắn --}}
+
+                        <h5>Mô tả ngắn </h5>
+
                         @if(!empty($product->mo_ta_ngan))
                         <div class="product-desc mb-3">{!! nl2br(e($product->mo_ta_ngan)) !!}</div>
                         @endif
@@ -352,7 +382,24 @@
 
     @include('layouts.footer')
 
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- (xử lý nút bấm -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const descBox = document.getElementById("descBox");
+            const toggleBtn = document.getElementById("toggleDesc");
+
+            if (descBox && toggleBtn) {
+                toggleBtn.addEventListener("click", function() {
+                    descBox.classList.toggle("expanded");
+                    toggleBtn.textContent = descBox.classList.contains("expanded") ?
+                        "Thu gọn ⭡" :
+                        "Xem thêm ⭢";
+                });
+            }
+        });
+    </script>
 
     {{-- JS: chọn sao (giữ nguyên phần của bạn nếu có) --}}
     <script>

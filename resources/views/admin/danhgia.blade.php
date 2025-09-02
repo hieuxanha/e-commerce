@@ -6,7 +6,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Quản lý đánh giá</title>
-    <link rel="stylesheet" href="{{ asset('css/admin/admin.css') }}" />
+    <link rel="stylesheet" href="{{ asset('css/admin/demo.css') }}" />
+    <link rel="stylesheet" href="{{ asset('css/nhanvien/timkiem.css') }}" />
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -14,43 +16,24 @@
 <body>
     <div class="app">
         <!-- Sidebar -->
-        <aside class="side">
-            <div class="brand">
-                <img src="https://i.pravatar.cc/56?img=12" alt="">
-                <div>
-                    <div>ADMIN</div>
-                    <small style="color:var(--muted)">Silver</small>
-                </div>
-            </div>
-
-            <nav class="menu">
-                <a class="mi" href="{{ route('admin.dashboard') }}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M3 12l2-2 4 4 8-8 4 4" stroke-width="2" />
-                    </svg> Trang chủ
-                </a>
-
-                <a class="mi active" href="{{ route('admin.reviews.index') }}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M21 15a4 4 0 0 1-4 4H8l-5 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8z" stroke-width="2" />
-                    </svg>
-                    Quản lý đánh giá
-                    @if(($countPending ?? 0) > 0)
-                    <span class="badge" style="margin-left:auto;background:#fef3c7;color:#b45309;border-radius:999px;padding:2px 8px;font-size:12px;">
-                        {{ $countPending }}
-                    </span>
-                    @endif
-                </a>
-            </nav>
-        </aside>
+        @include('admin.sidebar-admin')
 
         <!-- Main -->
         <main>
             <div class="top">
-                <div class="title">Quản lý đánh giá sản phẩm</div>
-                <div class="sep"></div>
-                <span class="chip">Chờ duyệt: {{ $countPending ?? 0 }}</span>
+                <form class="top-search" action="#" method="GET" role="search">
+                    <input type="text" name="q" class="top-search-input"
+                        placeholder="Tìm sản phẩm, danh mục, thương hiệu..." autocomplete="off" />
+                    <button class="top-search-btn" aria-label="Tìm kiếm">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <line x1="16.65" y1="16.65" x2="21" y2="21"></line>
+                        </svg>
+                    </button>
+                </form>
             </div>
+
+
 
             <div class="content">
                 {{-- Flash --}}

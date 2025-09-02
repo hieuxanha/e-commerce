@@ -20,6 +20,15 @@ use App\Http\Controllers\NhanVien\CategoryController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\NhanVien\BrandFrontController;
 
+use App\Http\Controllers\Admin\OrderAdminController;
+use App\Http\Controllers\Admin\phanquyenController;
+use App\Http\Controllers\Admin\DashboardController;
+
+use Illuminate\Support\Facades\Mail;
+
+
+
+
 
 
 /*
@@ -28,6 +37,9 @@ use App\Http\Controllers\NhanVien\BrandFrontController;
 |--------------------------------------------------------------------------
 */
 
+// Mail::raw('hieu1123', function ($m) {
+//     $m->to('22111061159@hunre.edu.vn')->subject('Ping');
+// });
 Route::redirect('/', '/home');
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
@@ -99,7 +111,12 @@ Route::get('/da-dat-hang', [CheckoutController::class, 'placed'])
 |--------------------------------------------------------------------------
 */
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
-    Route::get('/dashboard', fn() => view('admin.dashboard'))->name('dashboard');
+    // tĩnh
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/phan-quyen', [PhanQuyenController::class, 'index'])->name('phanquyen.index');
+    Route::patch('/phan-quyen/{user}/role', [PhanQuyenController::class, 'updateRole'])->name('phanquyen.updateRole');
 
     Route::get('/reviews', [ReviewController::class, 'adminIndex'])->name('reviews.index');
     Route::post('/reviews/{review}/reply', [ReviewController::class, 'reply'])->name('reviews.reply');
@@ -107,6 +124,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::post('/reviews/{review}/hide',    [ReviewController::class, 'hide'])->name('reviews.hide');
 
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+
+    Route::get('/van-chuyen', [OrderAdminController::class, 'index'])->name('orders.index');
+    Route::patch('/van-chuyen/{order}/status', [OrderAdminController::class, 'updateStatus'])->name('orders.updateStatus');
 });
 
 /*

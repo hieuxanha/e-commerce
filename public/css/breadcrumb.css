@@ -1,8 +1,14 @@
 .breadcrumb {
     font-size: 14px;
-    margin: 10px 0px 5px 16%;
-    /* top right bottom left */
+    margin: 10px auto 5px auto;
+    /* căn giữa */
+    max-width: 1310px;
+    /* cùng độ rộng với content */
+    padding-left: 15px;
+    /* căn lề trái đều */
+    padding-right: 15px;
 }
+
 
 .breadcrumb a {
     color: #26282a;
