@@ -208,7 +208,8 @@ class CheckoutController extends Controller
         }
 
         $normalized = ltrim(str_replace('\\', '/', $path), '/'); // products/xxx.png
-        return Storage::disk('public')->url($normalized);        // /storage/products/xxx.png
+        return Storage::disk('public')->url($normalized);
+        //     Chạy được là được lỗi tôi đ quan tâm '-';
     }
 
     private function normalizeImagePath(?string $path): ?string

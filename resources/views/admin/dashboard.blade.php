@@ -306,23 +306,23 @@
     {{-- 1) Chart.js --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    {{-- 2) JSON thuần --}}
     @php
     $dashboardPayload = [
-    'catLabels' => $catLabels,
-    'catCounts' => $catCounts,s
-    'roleLabels' => $roleLabels,
-    'roleCounts' => $roleCounts,
+    'catLabels' => $catLabels ?? [],
+    'catCounts' => $catCounts ?? [],
+    'roleLabels' => $roleLabels ?? [],
+    'roleCounts' => $roleCounts ?? [],
     ];
     @endphp
+
+    {{-- 2) NHÚNG JSON THUẦN - KHÔNG THÊM KÝ TỰ NÀO KHÁC --}}
     <script type="application/json" id="dashboard-data">
-        {
-            !!json_encode($dashboardPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!
-        }
+        @json($dashboardPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
     </script>
 
     {{-- 3) File JS --}}
     <script src="{{ asset('admin/dashboard.js') }}"></script>
+
 
 
 </html>

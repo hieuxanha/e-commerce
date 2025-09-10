@@ -80,7 +80,7 @@
                 @endif
 
                 {{-- Bộ lọc --}}
-                <form method="GET" action="{{ route('admin.orders.index') }}" class="row g-2 align-items-end mb-3">
+                <form method="GET" action="{{ route('admin.vanchuyen.index') }}" class="row g-2 align-items-end mb-3">
                     <div class="col-md-3">
                         <label class="form-label">Tìm theo mã đơn</label>
                         <input type="text" name="code" value="{{ request('code') }}" class="form-control" placeholder="VD: COD250829...">
@@ -181,7 +181,7 @@
                                         <td><span class="badge bg-{{ $payBadge }}">{{ $payText }}</span></td>
                                         <td><span class="badge bg-{{ $statusBadge }}">{{ $statusText }}</span></td>
                                         <td style="min-width:260px">
-                                            <form method="POST" action="{{ route('admin.orders.updateStatus', $o) }}" class="d-flex gap-2">
+                                            <form method="POST" action="{{ route('admin.vanchuyen.updateStatus', $o) }}" class="d-flex gap-2">
                                                 @csrf
                                                 @method('PATCH')
                                                 <select name="status" class="form-select form-select-sm">
@@ -207,12 +207,12 @@
                             </table>
                         </div>
                     </div>
-
-                    @if(method_exists($orders, 'links'))
+                    @if($orders instanceof \Illuminate\Contracts\Pagination\Paginator)
                     <div class="card-footer">
-                        {{ $orders->withQueryString()->links() }}
+                        {{ $orders->onEachSide(1)->links('pagination::bootstrap-5') }}
                     </div>
                     @endif
+
                 </div>
             </div>
         </main>

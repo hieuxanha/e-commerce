@@ -182,9 +182,10 @@
                 <div class="section-header">
                     <h2 class="section-title">{{ strtoupper($cat->ten_danh_muc) }} 🐭 🐁</h2>
                     <div class="section-filters">
-                        <a class="filter-tab" href="">XEM THÊM →</a>
+                        <a class="filter-tab" href="{{ route('danhmuc.show', $cat->id) }}">XEM THÊM →</a>
                     </div>
                 </div>
+
 
                 <div class="products-grid">
                     @forelse($cat->products as $p)
@@ -255,6 +256,8 @@
                 </div>
             </div>
         </div>
+        @include('layouts.chatbot')
+
     </div>
 
     {{-- Footer --}}

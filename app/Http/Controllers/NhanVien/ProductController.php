@@ -36,7 +36,7 @@ class ProductController extends Controller
             'mo_ta_chi_tiet',
         ])
             ->latest('id')
-            ->paginate(12);
+            ->paginate(7);
 
         $brands = Brand::orderBy('ten_thuong_hieu')->get(['id', 'ten_thuong_hieu']);
         $categories = Category::orderBy('ten_danh_muc')->get(['id', 'ten_danh_muc']);

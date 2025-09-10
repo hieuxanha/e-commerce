@@ -12,10 +12,14 @@
      </div>
 
      <nav class="menu">
-         <a class="mi " href="{{ route('nhanvien.dashboard') }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                 <path d="M3 12l2-2 4 4 8-8 4 4" stroke-width="2" />
-             </svg> Trang chủ</a>
-
+         <a class="mi {{ request()->routeIs('nhanvien.dashboard') ? 'active' : '' }}"
+             href="{{ route('nhanvien.dashboard') }}">
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                 <rect x="3" y="4" width="18" height="16" rx="3" stroke-width="2" />
+                 <path d="M7 8h10" stroke-width="2" />
+             </svg>
+             Tổng quan
+         </a>
          <div class="mi has-sub {{ request()->routeIs('nhanvien.danhsachsanpham') ? '' : '' }}">
              <div class="menu-parent">
                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">

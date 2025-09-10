@@ -361,3 +361,71 @@
      overflow-wrap: anywhere;
      min-width: 0;
  }
+
+
+ /* súa */
+ /* --- Sidebar: cố định rộng, 1 dòng + ellipsis, cuộn nếu dài --- */
+
+
+ /* aside của sidebar (tên lớp thực tế có thể là .sidebar-admin hoặc aside) */
+ .app>aside,
+ .sidebar-admin {
+     width: 260px;
+     /* chỉnh lại theo thiết kế của bạn */
+     flex-shrink: 0;
+     overflow: hidden;
+     /* ẩn tràn ngang */
+ }
+
+ /* vùng danh sách menu cho phép cuộn dọc nếu nhiều */
+ .app>aside .nav,
+ .sidebar-admin .nav,
+ .sidebar-admin .menu {
+     max-height: calc(100vh - 140px);
+     /* trừ phần header trong aside nếu có */
+     overflow-y: auto;
+ }
+
+ /* link menu: luôn 1 dòng và cắt bằng '…' */
+ .app>aside a,
+ .sidebar-admin a,
+ .sidebar-admin .nav-link,
+ .sidebar-admin .menu a {
+     display: flex;
+     align-items: center;
+     gap: 10px;
+     white-space: nowrap;
+     overflow: hidden;
+     text-overflow: ellipsis;
+     min-height: 42px;
+     /* đảm bảo click target đủ lớn */
+ }
+
+ /* phần text trong link (nếu có span) cũng ellipsis */
+ .sidebar-admin a span,
+ .sidebar-admin .nav-link span,
+ .sidebar-admin .menu a .text {
+     flex: 1;
+     overflow: hidden;
+     text-overflow: ellipsis;
+ }
+
+ /* Giới hạn kích thước item phân trang */
+ .pagination .page-link {
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     min-width: 38px;
+     height: 38px;
+     padding: 0;
+     line-height: 1;
+     text-align: center;
+ }
+
+ /* Nếu có SVG/icon trong page-link, không cho phóng to */
+ .pagination .page-link svg,
+ .pagination .page-link i {
+     width: 1em;
+     height: 1em;
+     flex: 0 0 auto;
+ }

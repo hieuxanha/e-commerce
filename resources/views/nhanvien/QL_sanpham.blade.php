@@ -119,6 +119,72 @@
                             @endforeach
                         </tbody>
                     </table>
+
+
+
+                    {{-- PHÂN TRANG: đầy đủ --}}
+                    {{-- PHÂN TRANG: tự render nút, không có "Showing..." bên phải --}}
+                    @if($products instanceof \Illuminate\Contracts\Pagination\Paginator && $products->hasPages())
+                    <div class="card-footer d-flex flex-wrap justify-content-between align-items-center bg-light">
+                        {{-- "Showing ..." bên trái (giữ 1 cái duy nhất) --}}
+                        <div class="text-muted small">
+                            Showing {{ $products->firstItem() }} to {{ $products->lastItem() }} of {{ $products->total() }} results
+                        </div>
+
+                        {{-- Nút trang bên phải (tự render, không kèm "Showing ...") --}}
+                        @php
+                        $current = $products->currentPage();
+                        $last = $products->lastPage();
+                        $prevUrl = $products->previousPageUrl();
+                        $nextUrl = $products->nextPageUrl();
+
+                        // tính dải trang hiển thị (onEachSide = 1)
+                        $from = max(1, $current - 1);
+                        $to = min($last, $current + 1);
+                        @endphp
+
+                        <nav>
+                            <ul class="pagination mb-0">
+                                {{-- Prev --}}
+                                <li class="page-item {{ $products->onFirstPage() ? 'disabled' : '' }}">
+                                    <a class="page-link" href="{{ $prevUrl ?? '#' }}" rel="prev" aria-label="Previous">&lsaquo;</a>
+                                </li>
+
+                                {{-- Nếu còn trang trước dải --}}
+                                @if($from > 1)
+                                <li class="page-item"><a class="page-link" href="{{ $products->url(1) }}">1</a></li>
+                                @if($from > 2)
+                                <li class="page-item disabled"><span class="page-link">…</span></li>
+                                @endif
+                                @endif
+
+                                {{-- Dải giữa --}}
+                                @for($page = $from; $page <= $to; $page++)
+                                    @if($page==$current)
+                                    <li class="page-item active" aria-current="page"><span class="page-link">{{ $page }}</span></li>
+                                    @else
+                                    <li class="page-item"><a class="page-link" href="{{ $products->url($page) }}">{{ $page }}</a></li>
+                                    @endif
+                                    @endfor
+
+                                    {{-- Nếu còn trang sau dải --}}
+                                    @if($to < $last)
+                                        @if($to < $last - 1)
+                                        <li class="page-item disabled"><span class="page-link">…</span></li>
+                                        @endif
+                                        <li class="page-item"><a class="page-link" href="{{ $products->url($last) }}">{{ $last }}</a></li>
+                                        @endif
+
+                                        {{-- Next --}}
+                                        <li class="page-item {{ $products->hasMorePages() ? '' : 'disabled' }}">
+                                            <a class="page-link" href="{{ $nextUrl ?? '#' }}" rel="next" aria-label="Next">&rsaquo;</a>
+                                        </li>
+                            </ul>
+                        </nav>
+                    </div>
+                    @endif
+
+
                 </div>
             </div>
 
