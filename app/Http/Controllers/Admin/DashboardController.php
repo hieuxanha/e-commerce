@@ -46,7 +46,7 @@ class DashboardController extends Controller
 
         // SP sắp hết hàng
         $lowStocks = Product::select('id', 'ten_san_pham', 'sku', 'so_luong_ton_kho', 'gia', 'gia_khuyen_mai')
-            ->where('so_luong_ton_kho', '<', 10)
+            ->where('so_luong_ton_kho', '<', 5)
             ->orderBy('so_luong_ton_kho')
             ->limit(8)
             ->get();

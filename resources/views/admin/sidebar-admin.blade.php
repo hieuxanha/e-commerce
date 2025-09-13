@@ -14,7 +14,7 @@
             </svg> Trang chủ</a>
 
         <!-- mươn tạm bên nhan vien -->
-        <div class="mi has-sub {{ request()->routeIs('nhanvien.danhsachsanpham') ? '' : '' }}">
+        <div class="mi has-sub {{ request()->routeIs('admin.danhsachsanpham') ? '' : '' }}">
             <div class="menu-parent">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <circle cx="12" cy="12" r="9" stroke-width="2" />
@@ -22,13 +22,13 @@
                 <span>Quản lý sản phẩm</span>
             </div>
             <div class="submenu">
-                <a href="{{ route('nhanvien.sanpham.them') }}">Thêm sản phẩm</a>
+                <a href="{{ route('admin.sanpham.them') }}">Thêm sản phẩm</a>
 
-                <a href="{{ route('nhanvien.danhsachsanpham') }}">Danh sách sản phẩm</a>
-                <a href="{{ route('nhanvien.brands.index') }}">
+                <a href="{{ route('admin.danhsachsanpham') }}">Danh sách sản phẩm</a>
+                <a href="{{ route('admin.brands.index') }}">
                     Xem danh sách thương hiệu
                 </a>
-                <a href="{{ route('nhanvien.categories.index') }}">
+                <a href="{{ route('admin.categories.index') }}">
                     Danh danh mục</a>
             </div>
 

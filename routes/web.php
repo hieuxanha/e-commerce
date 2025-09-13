@@ -31,6 +31,11 @@ use App\Http\Controllers\Admin\CustomerAdminController;
 use App\Http\Controllers\Admin\DonHangController;
 use App\Http\Controllers\Admin\TonKhoController;
 use App\Http\Controllers\Admin\ThongKeController;
+use App\Http\Controllers\Admin\AdminProductController;
+use App\Http\Controllers\Admin\AdminBrandController;
+use App\Http\Controllers\Admin\AdminCategoryController;
+
+
 
 
 use Illuminate\Support\Facades\Mail;
@@ -154,6 +159,44 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::post('/ton-kho/bulk-adjust', [TonKhoController::class, 'bulkAdjust'])->name('tonkho.bulkAdjust');
 
     Route::get('/thong-ke', [ThongKeController::class, 'index'])->name('thongke.index');
+
+
+
+    // them
+    Route::get('/danh-sach-san-pham', [AdminProductController::class, 'index'])
+        ->name('danhsachsanpham');
+
+    Route::get('/san-pham/them', [AdminProductController::class, 'create'])
+        ->name('sanpham.them');
+
+    Route::post('/products', [AdminProductController::class, 'store'])
+        ->name('products.store');
+
+    Route::get('/san-pham/{id}/edit', [AdminProductController::class, 'edit'])
+        ->whereNumber('id')
+        ->name('sanpham.edit');
+
+    Route::put('/san-pham/{id}', [AdminProductController::class, 'update'])
+        ->whereNumber('id')
+        ->name('sanpham.update');
+
+    Route::delete('/san-pham/{id}', [AdminProductController::class, 'destroy'])
+        ->whereNumber('id')
+        ->name('sanpham.destroy');
+
+    Route::get('/thuong-hieu', [BrandFrontController::class, 'index'])
+        ->name('brands.index');
+
+    Route::post('/brands', [AdminBrandController::class, 'store'])->name('brands.store');
+
+    Route::put('/brands/{brand}', [BrandFrontController::class, 'update'])->name('brands.update');
+    Route::delete('/brands/{brand}', [BrandFrontController::class, 'destroy'])->name('brands.destroy');
+    // Danh mục
+    Route::get('/danh-muc', [AdminCategoryController::class, 'index'])
+        ->name('categories.index');
+    Route::put('/categories/{category}', [AdminCategoryController::class, 'update'])->name('categories.update');   // NEW
+    Route::delete('/categories/{category}', [AdminCategoryController::class, 'destroy'])->name('categories.destroy'); // NEW
+    Route::post('/categories', [AdminCategoryController::class, 'store'])->name('categories.store');
 });
 
 /*
