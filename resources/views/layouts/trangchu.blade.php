@@ -12,13 +12,55 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-
-
 
     <link rel="stylesheet" href="{{ asset('css/header.css') }}" />
+    <link rel="stylesheet" href="{{ asset('css/magiam.css') }}" />
+
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}" />
-    <style></style>
+
+    <style>
+        .card-surface {
+            border: 1px solid #eaeef4;
+            border-radius: 14px;
+            box-shadow: 0 8px 24px rgba(16, 24, 40, .06)
+        }
+
+        .form-hint {
+            font-size: .85rem;
+            color: #6b7280
+        }
+
+        .table th {
+            white-space: nowrap
+        }
+
+        .sticky-actions {
+            position: sticky;
+            right: 0;
+            background: #fff
+        }
+
+        .card-surface {
+            border: 1px solid #eaeef4;
+            border-radius: 14px;
+            box-shadow: 0 8px 24px rgba(16, 24, 40, .06)
+        }
+
+        .form-hint {
+            font-size: .85rem;
+            color: #6b7280
+        }
+
+        .table th {
+            white-space: nowrap
+        }
+
+        .sticky-actions {
+            position: sticky;
+            right: 0;
+            background: #fff
+        }
+    </style>
 </head>
 
 <body>
@@ -30,7 +72,43 @@
     {{-- Header --}}
     @include('layouts.header')
 
+    @php
+    // An toàn nếu controller nào đó chưa truyền biến
+    $globalCoupon = $globalCoupon ?? null;
+    @endphp
+
     <div class="container">
+
+        {{-- ⭐ Banner ưu đãi toàn shop: CHỈ hiển thị khi đã đăng nhập & có mã còn hiệu lực --}}
+        @auth
+        @if(!empty($globalCoupon))
+        <div class="alert alert-success d-flex align-items-center gap-3 my-3 global-coupon-alert" role="alert">
+            <i class="bi bi-stars fs-5"></i>
+            <div class="me-2">
+                <div class="fw-semibold">Ưu đãi toàn shop</div>
+                <div class="small">
+                    Mã <span class="code">{{ $globalCoupon->code }}</span>
+                    —
+                    @switch($globalCoupon->type)
+                    @case('percent') {{ $globalCoupon->value ? $globalCoupon->value.'%' : '' }} @break
+                    @case('fixed') {{ $globalCoupon->value ? number_format($globalCoupon->value,0,',','.') . 'đ' : '' }} @break
+                    @case('free_shipping') Miễn phí vận chuyển @break
+                    @endswitch
+                    <span class="text-muted ms-2"
+                        data-bs-toggle="tooltip"
+                        title="ĐH tối thiểu: {{ number_format($globalCoupon->min_subtotal ?? 0,0,',','.') }}đ&#10;Tối đa: {{ $globalCoupon->max_discount ? number_format($globalCoupon->max_discount,0,',','.') . 'đ' : '—' }}&#10;Hiệu lực: {{ optional($globalCoupon->starts_at)->format('d/m/Y H:i') }} → {{ optional($globalCoupon->ends_at)->format('d/m/Y H:i') }}">
+                        (chi tiết)
+                    </span>
+                </div>
+
+            </div>
+            <button class="btn btn-sm btn-light ms-auto" id="copyGlobalCoupon" data-code="{{ $globalCoupon->code }}">
+                <i class="bi bi-clipboard"></i> Copy mã
+            </button>
+        </div>
+        @endif
+        @endauth
+
         <div class="main-layout">
             {{-- Sidebar trái --}}
             <nav class="sidebar" aria-label="Danh mục">
@@ -158,22 +236,236 @@
             {{-- Sidebar phải --}}
             <aside class="right-sidebar">
                 <div class="promo-card">
-                    <div class="promo-card-image">
-                        <img src="{{ asset('img/promo-mo-hinh-anime.jpg') }}" alt="Mô hình anime">
-                    </div>
+                    <div class="promo-card-image"><img src="{{ asset('img/promo-mo-hinh-anime.jpg') }}" alt="Mô hình anime"></div>
                 </div>
                 <div class="promo-card">
-                    <div class="promo-card-image">
-                        <img src="{{ asset('img/promo-gaming-gear.jpg') }}" alt="Gaming gear">
-                    </div>
+                    <div class="promo-card-image"><img src="{{ asset('img/promo-gaming-gear.jpg') }}" alt="Gaming gear"></div>
                 </div>
                 <div class="promo-card">
-                    <div class="promo-card-image">
-                        <img src="{{ asset('img/promo-ban-ghe-gaming.jpg') }}" alt="Bàn ghế gaming">
-                    </div>
+                    <div class="promo-card-image"><img src="{{ asset('img/promo-ban-ghe-gaming.jpg') }}" alt="Bàn ghế gaming"></div>
                 </div>
             </aside>
         </div>
+
+
+        {{-- ===== Dải coupon: chỉ hiện khi ĐÃ ĐĂNG NHẬP ===== --}}
+        @auth
+        @if(($coupons ?? collect())->count())
+        <div class="my-4">
+            <div class="row g-3">
+                @foreach($coupons as $cp)
+                @php
+                $isPercent = $cp->type === 'percent';
+                $isFixed = $cp->type === 'fixed';
+                $isShip = $cp->type === 'free_shipping';
+
+                // ===== Formatter an toàn =====
+                if ($isPercent) {
+                $raw = (float) ($cp->value ?? 0);
+                if ($raw > 100) {
+                $bp = floor($raw / 1000); // thử coi là basis points
+                $raw = ($bp >= 1 && $bp <= 100) ? $bp : 100;
+                    }
+                    $amountText=(int) $raw . '%' ;
+                    } elseif ($isShip) {
+                    $amountText='FREESHIP' ;
+                    } else {
+                    // giữ nguyên đơn vị tiền tệ
+                    $amountText=number_format((float)($cp->value ?? 0), 0, ',', '.') . 'đ';
+                    }
+
+                    $minTxt = $cp->min_subtotal ? number_format($cp->min_subtotal, 0, ',', '.') . ' đ' : '0 đ';
+                    $maxTxt = $cp->max_discount ? number_format($cp->max_discount, 0, ',', '.') . ' đ' : '—';
+                    $scopeTxt = [
+                    'all' => 'toàn shop', 'cart' => 'giỏ hàng', 'product' => 'sản phẩm chọn',
+                    'category' => 'danh mục chọn', 'brand' => 'thương hiệu chọn'
+                    ][$cp->apply_scope] ?? 'áp dụng';
+
+                    $modalId = 'couponConditionsModal_' . ($cp->id ?? \Illuminate\Support\Str::slug($cp->code));
+                    @endphp
+
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <div class="card border-success-subtle bg-success-subtle h-100">
+                            <div class="card-body d-flex flex-column">
+                                <div class="small text-success-emphasis mb-2">
+                                    Mã: <span class="fw-semibold">{{ $cp->code }}</span>
+                                    {{-- Tooltip hiển thị note nhanh nếu có --}}
+                                    @if(!empty($cp->note))
+                                    <i class="bi bi-info-circle ms-1 text-muted"
+                                        data-bs-toggle="tooltip"
+                                        title="{{ $cp->note }}"></i>
+                                    @endif
+                                </div>
+
+                                <div class="p-3 text-center mb-3 border rounded-3 border-success-subtle bg-white">
+                                    <div class="text-uppercase small text-success">Giảm</div>
+                                    <div class="fs-2 fw-bold text-success mb-0">{{ $amountText }}</div>
+                                </div>
+
+                                <div class="small text-success-emphasis flex-grow-1">
+                                    @if($isShip)
+                                    Freeship {{ $scopeTxt }} @if($cp->min_subtotal) cho đơn từ {{ $minTxt }} @endif
+                                    @elseif($isPercent)
+                                    Giảm {{ $amountText }}
+                                    @if($cp->max_discount) (tối đa {{ $maxTxt }}) @endif
+                                    @if($cp->min_subtotal) cho đơn từ {{ $minTxt }} @endif
+                                    @else
+                                    Giảm {{ $amountText }}
+                                    @if($cp->min_subtotal) cho đơn từ {{ $minTxt }} @endif
+                                    @endif
+                                </div>
+
+                                <div class="mt-3 d-flex justify-content-between gap-2">
+                                    <button type="button"
+                                        class="btn btn-outline-success btn-sm flex-grow-1"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#{{ $modalId }}">
+                                        <i class="bi bi-info-circle me-1"></i> Điều kiện
+                                    </button>
+
+                                    <button class="btn btn-success btn-sm flex-grow-1 coupon-copy" data-code="{{ $cp->code }}">
+                                        <i class="bi bi-clipboard me-1"></i> Sao chép
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Modal Điều kiện áp dụng --}}
+                    <div class="modal fade" id="{{ $modalId }}" tabindex="-1" aria-labelledby="{{ $modalId }}Label" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header bg-success-subtle">
+                                    <h5 class="modal-title text-success-emphasis" id="{{ $modalId }}Label">
+                                        Điều kiện áp dụng — {{ $cp->code }}
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <ul class="list-unstyled small mb-0">
+                                        <li>🔹 Phạm vi: {{ $scopeTxt }}</li>
+                                        @if($isShip)
+                                        <li>🔹 Ưu đãi: Miễn phí vận chuyển</li>
+                                        @elseif($isPercent)
+                                        <li>🔹 Ưu đãi: Giảm {{ $amountText }} @if($cp->max_discount) (tối đa {{ $maxTxt }}) @endif</li>
+                                        @else
+                                        <li>🔹 Ưu đãi: Giảm {{ $amountText }}</li>
+                                        @endif
+
+                                        @if($cp->min_subtotal)
+                                        <li>🔹 Đơn tối thiểu: {{ $minTxt }}</li>
+                                        @endif
+                                        <li>🔹 Hiệu lực:
+                                            {{ optional($cp->starts_at)->format('d/m/Y H:i') ?? 'Không giới hạn' }}
+                                            → {{ optional($cp->ends_at)->format('d/m/Y H:i') ?? 'Không giới hạn' }}
+                                        </li>
+                                    </ul>
+
+                                    {{-- ==== PHẠM VI ÁP DỤNG CHI TIẾT ==== --}}
+                                    @php
+                                    // id cho collapse
+                                    $pid = 'cpP'.$cp->id; $cid = 'cpC'.$cp->id; $bid = 'cpB'.$cp->id;
+                                    // tên hiển thị
+                                    $pname = fn($m)=>($m->ten_san_pham ?? $m->name ?? $m->product_name ?? $m->sku ?? ('SP #'.$m->id));
+                                    $cname = fn($m)=>($m->ten_danh_muc ?? $m->name ?? $m->category_name ?? ('DM #'.$m->id));
+                                    $bname = fn($m)=>($m->ten_thuong_hieu ?? $m->name ?? $m->brand_name ?? ('TH #'.$m->id));
+                                    @endphp
+
+                                    {{-- Theo SẢN PHẨM --}}
+                                    @if(($cp->apply_scope ?? null) === 'product' && ($cp->products?->count() ?? 0) > 0)
+                                    <hr class="my-3">
+                                    <div>
+                                        <div class="fw-semibold small mb-2">Phạm vi áp dụng – Sản phẩm</div>
+                                        @php $total = $cp->products->count(); @endphp
+                                        <ul class="small ps-3 mb-2">
+                                            @foreach($cp->products->take(8) as $it) <li>{{ $pname($it) }}</li> @endforeach
+                                        </ul>
+                                        @if($total > 8)
+                                        <div class="collapse" id="{{ $pid }}">
+                                            <ul class="small ps-3 mt-0">
+                                                @foreach($cp->products->slice(8) as $it) <li>{{ $pname($it) }}</li> @endforeach
+                                            </ul>
+                                        </div>
+                                        <button class="btn btn-link btn-sm p-0" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#{{ $pid }}">
+                                            Xem tất cả ({{ $total }})
+                                        </button>
+                                        @endif
+                                    </div>
+                                    @endif
+
+                                    {{-- Theo DANH MỤC --}}
+                                    @if(($cp->apply_scope ?? null) === 'category' && ($cp->categories?->count() ?? 0) > 0)
+                                    <hr class="my-3">
+                                    <div>
+                                        <div class="fw-semibold small mb-2">Phạm vi áp dụng – Danh mục</div>
+                                        @php $total = $cp->categories->count(); @endphp
+                                        <ul class="small ps-3 mb-2">
+                                            @foreach($cp->categories->take(8) as $it) <li>{{ $cname($it) }}</li> @endforeach
+                                        </ul>
+                                        @if($total > 8)
+                                        <div class="collapse" id="{{ $cid }}">
+                                            <ul class="small ps-3 mt-0">
+                                                @foreach($cp->categories->slice(8) as $it) <li>{{ $cname($it) }}</li> @endforeach
+                                            </ul>
+                                        </div>
+                                        <button class="btn btn-link btn-sm p-0" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#{{ $cid }}">
+                                            Xem tất cả ({{ $total }})
+                                        </button>
+                                        @endif
+                                    </div>
+                                    @endif
+
+                                    {{-- Theo THƯƠNG HIỆU --}}
+                                    @if(($cp->apply_scope ?? null) === 'brand' && ($cp->brands?->count() ?? 0) > 0)
+                                    <hr class="my-3">
+                                    <div>
+                                        <div class="fw-semibold small mb-2">Phạm vi áp dụng – Thương hiệu</div>
+                                        @php $total = $cp->brands->count(); @endphp
+                                        <ul class="small ps-3 mb-2">
+                                            @foreach($cp->brands->take(8) as $it) <li>{{ $bname($it) }}</li> @endforeach
+                                        </ul>
+                                        @if($total > 8)
+                                        <div class="collapse" id="{{ $bid }}">
+                                            <ul class="small ps-3 mt-0">
+                                                @foreach($cp->brands->slice(8) as $it) <li>{{ $bname($it) }}</li> @endforeach
+                                            </ul>
+                                        </div>
+                                        <button class="btn btn-link btn-sm p-0" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#{{ $bid }}">
+                                            Xem tất cả ({{ $total }})
+                                        </button>
+                                        @endif
+                                    </div>
+                                    @endif
+                                    {{-- ==== /PHẠM VI ÁP DỤNG CHI TIẾT ==== --}}
+
+                                    {{-- Ghi chú (hỗ trợ xuống dòng) --}}
+                                    @if(!empty($cp->note))
+                                    <hr class="my-3">
+                                    <div class="small text-muted">
+                                        <i class="bi bi-sticky me-1"></i>{!! nl2br(e($cp->note)) !!}
+                                    </div>
+                                    @endif
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                    <button type="button" class="btn btn-success btn-sm coupon-copy" data-code="{{ $cp->code }}">
+                                        <i class="bi bi-clipboard me-1"></i> Sao chép mã
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+            </div>
+        </div>
+        @endif
+        @endauth
+        {{-- ===== /Dải coupon ===== --}}
 
         {{-- Danh mục + sản phẩm --}}
         <div class="container">
@@ -186,7 +478,6 @@
                     </div>
                 </div>
 
-
                 <div class="products-grid">
                     @forelse($cat->products as $p)
                     @php
@@ -196,10 +487,24 @@
                     $img = $p->hinh_anh_chinh
                     ? (preg_match('/^https?:\/\//', $p->hinh_anh_chinh) ? $p->hinh_anh_chinh : asset('storage/' . $p->hinh_anh_chinh))
                     : asset('img/placeholder-product.jpg');
-                    $detailUrl = !empty($p->slug) ? route('sanpham.chitiet', ['slug' => $p->slug]) : route('sanpham.chitiet.id', ['id' => $p->id]);
+                    $detailUrl = !empty($p->slug)
+                    ? route('sanpham.chitiet', ['slug' => $p->slug])
+                    : route('sanpham.chitiet.id', ['id' => $p->id]);
                     @endphp
 
                     <div class="product-item">
+                        {{-- ⭐ Chip báo có mã toàn shop: CHỈ hiển thị khi đã đăng nhập --}}
+                        @auth
+                        @if(!empty($globalCoupon))
+                        <div class="promo-chip"
+                            data-bs-toggle="tooltip"
+                            title="Áp dụng toàn shop bằng mã {{ $globalCoupon->code }}">
+                            {{ $globalCoupon->code }}
+                        </div>
+                        @endif
+                        @endauth
+
+                        {{-- Nhãn giảm theo giá khuyến mãi của riêng SP (nếu có) --}}
                         @if($percent)
                         <div class="discount-label">-{{ $percent }}%</div>
                         @endif
@@ -256,6 +561,7 @@
                 </div>
             </div>
         </div>
+
         @include('layouts.chatbot')
 
     </div>
@@ -263,6 +569,8 @@
     {{-- Footer --}}
     @include('layouts.footer')
 
+    {{-- Bootstrap JS (cần cho tooltip) --}}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         // Search focus UI nho nhỏ (không liên quan giỏ)
@@ -279,25 +587,47 @@
             });
         })();
     </script>
+    <script>
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.coupon-copy');
+            if (!btn) return;
 
+            const code = btn.dataset.code || '';
+            if (!code) return;
+
+            navigator.clipboard.writeText(code).then(() => {
+                if (typeof showToast === 'function') {
+                    showToast('✅ Đã copy mã ' + code);
+                } else {
+                    // fallback nếu bạn không dùng showToast
+                    const old = document.querySelector('#copy-toast');
+                    if (old) old.remove();
+                    const t = document.createElement('div');
+                    t.id = 'copy-toast';
+                    t.textContent = 'Đã copy mã ' + code;
+                    t.className = 'position-fixed top-0 end-0 m-3 p-2 text-white bg-success rounded';
+                    document.body.appendChild(t);
+                    setTimeout(() => t.remove(), 1400);
+                }
+            });
+        });
+    </script>
+
+
+    {{-- Giỏ hàng --}}
     <script>
         (function() {
-            // Chống bind trùng nếu trang được include nhiều lần
             if (window.__HOME_ADD_TO_CART_BOUND__) return;
             window.__HOME_ADD_TO_CART_BOUND__ = true;
 
-            const cartBadge = document.getElementById('cartBadge'); // từ header
-            const dropdown = document.getElementById('cart-dropdown'); // từ header
+            const cartBadge = document.getElementById('cartBadge');
+            const dropdown = document.getElementById('cart-dropdown');
             const CSRF = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
-            // Delegation: chỉ 1 handler cho tất cả nút .add-to-cart-btn
             document.addEventListener('click', async function(e) {
                 const btn = e.target.closest('.add-to-cart-btn');
                 if (!btn) return;
-
                 e.preventDefault();
-
-                // chặn spam
                 if (btn.dataset.busy === '1') return;
                 btn.dataset.busy = '1';
 
@@ -330,11 +660,9 @@
                     const data = await res.json().catch(() => ({}));
 
                     if (res.ok && data.status === 'success') {
-                        // cập nhật badge
                         if (cartBadge && typeof data.totalQuantity !== 'undefined') {
                             cartBadge.textContent = data.totalQuantity;
                         }
-                        // cập nhật mini cart
                         if (dropdown) {
                             if (data.html) {
                                 dropdown.innerHTML = data.html;
@@ -342,7 +670,7 @@
                             } else {
                                 await refreshMiniCart(dropdown);
                             }
-                            dropdown.classList.add('show'); // mở ra cho user thấy
+                            dropdown.classList.add('show');
                         }
                         showToast('🛒 Đã thêm vào giỏ hàng thành công!');
                     } else {
@@ -358,7 +686,6 @@
                 }
             });
 
-            // Helpers
             async function refreshMiniCart(ddEl) {
                 try {
                     const res = await fetch(`{{ route('cart.mini') }}`, {
@@ -369,8 +696,6 @@
                     const html = await res.text();
                     ddEl.innerHTML = html;
                     bindRemoveHandlersInDropdown();
-
-                    // nếu trong html có tổng (ví dụ: "Tổng: ... (12 sản phẩm)")
                     const totalText = ddEl.querySelector('.cart-total');
                     if (totalText && cartBadge) {
                         const m = totalText.textContent.match(/\((\d+)\s+sản phẩm\)/);
@@ -435,20 +760,20 @@
                 }, 1800);
             }
 
-            // Click ra ngoài đóng mini cart
             document.addEventListener('click', function(e) {
                 const wrap = document.querySelector('.cart-wrapper');
                 const dd = document.getElementById('cart-dropdown');
                 if (wrap && dd && !wrap.contains(e.target)) dd.classList.remove('show');
             });
 
-            // Nút “Giỏ hàng” trong header
             window.toggleCartDropdown = function() {
                 const dd = document.getElementById('cart-dropdown');
                 if (dd) dd.classList.toggle('show');
             };
         })();
     </script>
+
+
 </body>
 
 </html>

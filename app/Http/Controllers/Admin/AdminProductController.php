@@ -53,7 +53,7 @@ class AdminProductController extends Controller
         $brands = Brand::orderBy('ten_thuong_hieu')->get(['id', 'ten_thuong_hieu']);
         $categories = Category::orderBy('ten_danh_muc')->get(['id', 'ten_danh_muc']);
 
-        return view('nhanvien.Them_thongtin_sp', compact('brands', 'categories'));
+        return view('admin.Them_thongtin_sp', compact('brands', 'categories'));
     }
 
     /**

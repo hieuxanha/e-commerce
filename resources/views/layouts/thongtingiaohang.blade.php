@@ -1,4 +1,4 @@
-{{-- resources/views/thongtingiaohang.blade.php --}}
+{{-- resources/views/layouts/thongtingiaohang.blade.php --}}
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -18,48 +18,43 @@
             background: #f7f7f7;
             padding: 12px 0;
             color: #6b7280;
-            font-size: .95rem;
+            font-size: .95rem
         }
 
         .checkout-wrap {
-            padding: 24px 0 48px;
+            padding: 24px 0 48px
         }
 
-        .checkout-card {
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-        }
-
+        .checkout-card,
         .cart-summary {
             background: #fff;
             border: 1px solid #e5e7eb;
-            border-radius: 12px;
+            border-radius: 12px
         }
 
         .thumb {
             width: 64px;
             height: 64px;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 8px
         }
 
         .form-select,
         .form-control {
-            height: 48px;
+            height: 48px
         }
 
         .muted {
-            color: #6b7280;
+            color: #6b7280
         }
 
         .btn-ghost {
             border: 1px solid #e5e7eb;
-            background: #fff;
+            background: #fff
         }
 
         .price {
-            font-weight: 600;
+            font-weight: 600
         }
     </style>
 </head>
@@ -67,7 +62,6 @@
 <body>
     @include('layouts.header')
 
-    {{-- Breadcrumb --}}
     <div class="breadcrumb-x">
         <div class="container">
             <a href="{{ url('/cart') }}">Giỏ hàng</a>
@@ -81,73 +75,91 @@
     <div class="checkout-wrap">
         <div class="container">
             <div class="row g-4">
-                {{-- LEFT: Form thông tin giao hàng --}}
+                {{-- LEFT --}}
                 <div class="col-lg-7">
                     <div class="checkout-card p-4 p-md-5">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="mb-0">Thông tin giao hàng</h5>
-                            <div class="small">
-                                Bạn đã có tài khoản?
-                                <a href="{{ url('/login') }}">Đăng nhập</a>
-                            </div>
+                            <div class="small">Bạn đã có tài khoản? <a href="{{ url('/login') }}">Đăng nhập</a></div>
                         </div>
 
                         <form action="{{ url('/checkout/submit') }}" method="POST" id="checkout-form" novalidate>
                             @csrf
-
-                            {{-- (Tuỳ chọn) lưu cả tên hiển thị để backend dùng tiện --}}
                             <input type="hidden" name="province_name" id="provinceName">
                             <input type="hidden" name="district_name" id="districtName">
                             <input type="hidden" name="ward_name" id="wardName">
 
                             <div class="row g-3">
                                 <div class="col-12">
-                                    <input type="text" name="fullname" class="form-control" placeholder="Họ và tên" value="{{ old('fullname') }}" required>
+                                    <input type="text" name="fullname"
+                                        class="form-control @error('fullname') is-invalid @enderror"
+                                        placeholder="Họ và tên" value="{{ old('fullname') }}" required>
+                                    @error('fullname') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
+
                                 <div class="col-md-8">
-                                    <input type="email" name="email" class="form-control" placeholder="Email" value="{{ old('email') }}" required>
+                                    <input type="email" name="email"
+                                        class="form-control @error('email') is-invalid @enderror"
+                                        placeholder="Email" value="{{ old('email') }}" required>
+                                    @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
+
                                 <div class="col-md-4">
-                                    <input type="text" name="phone" class="form-control" placeholder="Số điện thoại" value="{{ old('phone') }}" required>
+                                    <input type="text" name="phone"
+                                        class="form-control @error('phone') is-invalid @enderror"
+                                        placeholder="Số điện thoại" value="{{ old('phone') }}" required>
+                                    @error('phone') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
 
                                 <div class="col-12">
-                                    <input type="text" name="address" class="form-control" placeholder="Địa chỉ" value="{{ old('address') }}" required>
+                                    <input type="text" name="address"
+                                        class="form-control @error('address') is-invalid @enderror"
+                                        placeholder="Địa chỉ" value="{{ old('address') }}" required>
+                                    @error('address') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
 
                                 <div class="col-md-4">
-                                    <select id="provinceSelect" name="province_id" class="form-select" required
-                                        data-old="{{ old('province_id') }}">
+                                    <select id="provinceSelect" name="province_id"
+                                        class="form-select @error('province_id') is-invalid @enderror"
+                                        required data-old="{{ old('province_id') }}">
                                         <option value="">Chọn tỉnh / thành</option>
                                     </select>
+                                    @error('province_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
 
                                 <div class="col-md-4">
-                                    <select id="districtSelect" name="district_id" class="form-select" required disabled
-                                        data-old="{{ old('district_id') }}">
+                                    <select id="districtSelect" name="district_id"
+                                        class="form-select @error('district_id') is-invalid @enderror"
+                                        required disabled data-old="{{ old('district_id') }}">
                                         <option value="">Chọn quận / huyện</option>
                                     </select>
+                                    @error('district_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
 
                                 <div class="col-md-4">
-                                    <select id="wardSelect" name="ward_id" class="form-select" required disabled
-                                        data-old="{{ old('ward_id') }}">
+                                    <select id="wardSelect" name="ward_id"
+                                        class="form-select @error('ward_id') is-invalid @enderror"
+                                        required disabled data-old="{{ old('ward_id') }}">
                                         <option value="">Chọn phường / xã</option>
                                     </select>
+                                    @error('ward_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
-
 
                                 <div class="col-12">
-                                    <textarea name="note" class="form-control" rows="3" placeholder="Ghi chú (không bắt buộc)">{{ old('note') }}</textarea>
+                                    <textarea name="note" rows="3"
+                                        class="form-control @error('note') is-invalid @enderror"
+                                        placeholder="Ghi chú (không bắt buộc)">{{ old('note') }}</textarea>
+                                    @error('note') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
+
                                 {{-- PHƯƠNG THỨC THANH TOÁN --}}
                                 <div class="col-12">
                                     <h6 class="mt-2 mb-3">Phương thức thanh toán</h6>
 
-                                    <div class="list-group mb-3">
-
+                                    <div class="list-group mb-1">
                                         <label class="list-group-item d-flex align-items-center gap-3">
-                                            <input class="form-check-input m-0" type="radio" name="payment_method" value="cod" checked>
+                                            <input class="form-check-input m-0" type="radio" name="payment_method" value="cod"
+                                                {{ old('payment_method','cod') === 'cod' ? 'checked' : '' }}>
                                             <img src="{{ asset('img/cod-box.svg') }}" alt="COD" width="28" height="28" onerror="this.style.display='none'">
                                             <div>
                                                 <div class="fw-semibold">Thanh toán khi giao hàng (COD)</div>
@@ -155,9 +167,9 @@
                                             </div>
                                         </label>
 
-                                        {{-- VNPAY --}}
                                         <label class="list-group-item d-flex align-items-center gap-3">
-                                            <input class="form-check-input m-0" type="radio" name="payment_method" value="vnpay">
+                                            <input class="form-check-input m-0" type="radio" name="payment_method" value="vnpay"
+                                                {{ old('payment_method') === 'vnpay' ? 'checked' : '' }}>
                                             <img src="{{ asset('img/vnpay.svg') }}" alt="VNPAY" width="28" height="28" onerror="this.style.display='none'">
                                             <div>
                                                 <div class="fw-semibold">Thẻ ATM/Visa/Master/JCB/QR Pay qua cổng VNPAY</div>
@@ -165,41 +177,19 @@
                                             </div>
                                         </label>
 
-
-                                        {{-- Khối cấu hình chỉ hiện khi chọn VNPAY --}}
-                                        <div id="vnpayBox" class="list-group-item" style="display:none;">
+                                        <div id="vnpayBox" class="list-group-item d-none">
                                             <div class="d-flex align-items-center gap-2 mb-2">
                                                 <img src="{{ asset('images/vnpay-banks.png') }}" alt="Banks" height="24" onerror="this.style.display='none'">
                                                 <span class="small text-muted">Chọn phương thức qua cổng VNPAY</span>
                                             </div>
-
-                                            {{-- Ví dụ vài phương án; backend đọc name="vnpay_bank_code" --}}
-                                            <!-- <div class="row g-2">
-                                                <div class="col-md-6">
-                                                    <select name="vnpay_bank_code" class="form-select">
-                                                        <option value="">Mặc định (VNPAY chọn)</option>
-                                                        <option value="VNPAYQR">QR Pay</option>
-                                                        <option value="VNBANK">Thẻ nội địa (ATM)</option>
-                                                        <option value="INTCARD">Thẻ quốc tế (Visa/Master/JCB)</option>
-                                                    </select>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <select name="vnpay_locale" class="form-select">
-                                                        <option value="vn" selected>Tiếng Việt</option>
-                                                        <option value="en">English</option>
-                                                    </select>
-                                                </div>
-                                            </div> -->
-
-                                            {{-- Tuỳ chọn ghi chú riêng cho VNPAY (không bắt buộc) --}}
                                             <div class="form-text mt-2">Sau khi đặt hàng, bạn sẽ được chuyển sang trang thanh toán VNPAY để hoàn tất.</div>
                                         </div>
                                     </div>
+                                    @error('payment_method') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                 </div>
-                                <div class="col- mt-2">
-                                    <button type="submit" class="btn btn-primary px-4 py-2">
-                                        thanh toán
-                                    </button>
+
+                                <div class="col-12 mt-2">
+                                    <button type="submit" class="btn btn-primary px-4 py-2">Thanh toán</button>
                                     <a href="{{ url('/cart') }}" class="btn btn-ghost mt-2">Giỏ hàng</a>
                                 </div>
                             </div>
@@ -207,18 +197,22 @@
                     </div>
                 </div>
 
-                {{-- RIGHT: Tóm tắt đơn hàng & mã giảm giá --}}
+                {{-- RIGHT --}}
                 <div class="col-lg-5">
                     <div class="cart-summary p-4 p-md-4">
-                        {{-- Danh sách sản phẩm trong đơn --}}
-                        <div class="mb-3">
-                            @php
-                            $cartItems = $cartItems ?? [];
-                            $subtotal = $subtotal ?? 0;
-                            $shipping = $shipping ?? 0;
-                            $total = $total ?? ($subtotal + $shipping);
-                            @endphp
+                        @php
+                        $cartItems = $cartItems ?? [];
+                        $subtotal = (int) ($subtotal ?? 0);
+                        $shipping = (int) ($shipping ?? 0);
+                        $total = (int) ($total ?? ($subtotal + $shipping));
+                        $appliedRaw = $appliedCoupon ?? (session('applied_coupon') ?? null);
+                        $discount = (int) ($discount ?? 0);
+                        $appliedCode = is_array($appliedRaw) ? ($appliedRaw['code'] ?? null)
+                        : (is_string($appliedRaw) ? $appliedRaw : null);
+                        @endphp
 
+                        {{-- Sản phẩm --}}
+                        <div class="mb-3">
                             @forelse($cartItems as $it)
                             <div class="d-flex align-items-center mb-3">
                                 <img class="thumb me-3" src="{{ $it['image'] ?? asset('images/no-image.png') }}" alt="{{ $it['name'] ?? 'SP' }}">
@@ -243,19 +237,42 @@
                             @endforelse
                         </div>
 
-                        {{-- Mã giảm giá --}}
-                        <form action="{{ url('/checkout/apply-coupon') }}" method="POST" class="mb-3">
+                        {{-- Mã giảm giá (AJAX) --}}
+                        <div id="couponBox" class="mb-3">
                             @csrf
                             <div class="input-group">
-                                <input type="text" name="coupon_code" class="form-control" placeholder="Mã giảm giá" value="{{ old('coupon_code') }}">
-                                <button class="btn btn-ghost" type="submit">Sử dụng</button>
+                                <input type="text" name="coupon_code" id="couponInput"
+                                    class="form-control {{ $errors->has('coupon') ? 'is-invalid' : '' }}"
+                                    placeholder="Mã giảm giá"
+                                    value="{{ old('coupon_code', $appliedCode ?? '') }}"
+                                    {{ $appliedCode ? 'readonly' : '' }}>
+                                <button class="btn btn-ghost" id="applyCouponBtn" type="button" {{ $appliedCode ? 'disabled' : '' }}>
+                                    Sử dụng
+                                </button>
                             </div>
-                        </form>
 
-                        {{-- Chương trình khách hàng thân thiết --}}
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div class="fw-semibold">Chương trình khách hàng thân thiết</div>
-                            <a class="btn btn-ghost btn-sm" href="{{ url('/login') }}">Đăng nhập</a>
+                            <!-- {{-- Lỗi trả về từ submit() (server-side) --}}
+                            @if($errors->has('coupon'))
+                            <div id="couponError" class="invalid-feedback d-block mt-2">{{ $errors->first('coupon') }}</div>
+                            @else
+                            <div id="couponError" class="invalid-feedback d-block mt-2 d-none"></div>
+                            @endif -->
+
+                            {{-- Trạng thái AJAX --}}
+                            <div id="couponStatus" class="small mt-2 {{ $appliedCode ? '' : 'd-none' }}">
+                                @if($appliedCode)
+                                <span class="text-success">
+                                    <i class="bi bi-check-circle"></i>
+                                    Đã áp dụng <strong id="appliedCode">{{ $appliedCode }}</strong>,
+                                    giảm <strong id="appliedDiscount">{{ number_format($discount,0,',','.') }}đ</strong>.
+                                </span>
+                                <button class="btn btn-link btn-sm text-danger p-0 ms-2" id="removeCouponBtn" type="button">Gỡ mã</button>
+                                @else
+                                <span class="text-muted">Nhập mã để nhận ưu đãi.</span>
+                                @endif
+                            </div>
+
+                            <div id="couponAlert" class="alert py-2 px-3 mt-2 d-none"></div>
                         </div>
 
                         <hr>
@@ -263,16 +280,23 @@
                         {{-- Tổng kết --}}
                         <div class="d-flex justify-content-between mb-2">
                             <span class="muted">Tạm tính</span>
-                            <span>{{ number_format($subtotal, 0, ',', '.') }}đ</span>
+                            <span id="subtotalText">{{ number_format($subtotal, 0, ',', '.') }}đ</span>
                         </div>
+
                         <div class="d-flex justify-content-between mb-2">
                             <span class="muted">Phí vận chuyển</span>
-                            <span>{{ $shipping > 0 ? number_format($shipping, 0, ',', '.') . 'đ' : '—' }}</span>
+                            <span id="shippingText">{{ $shipping > 0 ? number_format($shipping, 0, ',', '.') . 'đ' : '—' }}</span>
+                        </div>
+
+                        {{-- Dòng giảm giá --}}
+                        <div id="discountLine" class="justify-content-between mb-2 {{ $discount > 0 ? 'd-flex' : 'd-none' }}">
+                            <span class="muted">Giảm mã <span id="discountCodeLabel">{{ $appliedCode ?? '' }}</span></span>
+                            <span id="discountAmount" class="text-success">-{{ number_format($discount, 0, ',', '.') }}đ</span>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center mt-3">
                             <h6 class="mb-0">Tổng cộng</h6>
-                            <div class="fs-5 fw-bold">{{ number_format($total, 0, ',', '.') }}đ</div>
+                            <div class="fs-5 fw-bold" id="grandTotal">{{ number_format($total, 0, ',', '.') }}đ</div>
                         </div>
                     </div>
                 </div>
@@ -281,32 +305,30 @@
     </div>
 
     @include('layouts.footer')
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // Thêm JS nhỏ để bật/tắt khối VNPAY
-
-
+        /* Toggle VNPAY */
         (function() {
             const vnpayBox = document.getElementById('vnpayBox');
             const radios = document.querySelectorAll('input[name="payment_method"]');
             const toggleVnpay = () => {
                 const val = document.querySelector('input[name="payment_method"]:checked')?.value;
-                vnpayBox.style.display = (val === 'vnpay') ? 'block' : 'none';
+                if (!vnpayBox) return;
+                if (val === 'vnpay') vnpayBox.classList.remove('d-none');
+                else vnpayBox.classList.add('d-none');
             };
             radios.forEach(r => r.addEventListener('change', toggleVnpay));
-            toggleVnpay(); // init
+            toggleVnpay();
         })();
 
+        /* Đổ dữ liệu tỉnh–huyện–xã */
         (function() {
             const DATA_URL = "{{ asset('data/DiaGioiHanhChinhVN-master/data.json') }}";
-
             const selProv = document.getElementById('provinceSelect');
             const selDist = document.getElementById('districtSelect');
             const selWard = document.getElementById('wardSelect');
 
-            // lấy giá trị old() từ data-*
             const OLD_PROV = selProv?.dataset?.old || '';
             const OLD_DIST = selDist?.dataset?.old || '';
             const OLD_WARD = selWard?.dataset?.old || '';
@@ -319,9 +341,9 @@
                 o.textContent = t;
                 return o;
             };
-            const reset = (sel, placeholder, disabled = true) => {
+            const reset = (sel, ph, disabled = true) => {
                 sel.innerHTML = '';
-                sel.appendChild(opt('', placeholder));
+                sel.appendChild(opt('', ph));
                 sel.disabled = !!disabled;
             };
             const textOf = (sel) => sel.options[sel.selectedIndex]?.text || '';
@@ -392,21 +414,186 @@
                     reset(selWard, '—', true);
                 });
         })();
-    </script>
 
+        /* ÁP/GỠ MÃ GIẢM GIÁ (AJAX) */
+        (function() {
+            const applyBtn = document.getElementById('applyCouponBtn');
+            const input = document.getElementById('couponInput');
+            const alertBox = document.getElementById('couponAlert');
+            const statusBox = document.getElementById('couponStatus');
+            const errorBlock = document.getElementById('couponError');
+
+            const subtotalEl = document.getElementById('subtotalText');
+            const shippingEl = document.getElementById('shippingText');
+            const totalEl = document.getElementById('grandTotal');
+
+            const discountLine = document.getElementById('discountLine');
+            const discountAmountEl = document.getElementById('discountAmount');
+            const discountCodeLbl = document.getElementById('discountCodeLabel');
+            const appliedCodeEl = document.getElementById('appliedCode');
+            const appliedDiscEl = document.getElementById('appliedDiscount');
+
+            const CSRF = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            const HIDE_MS = 5000;
+
+            function fmt(n) {
+                n = Math.max(0, parseInt(n || 0, 10));
+                return n.toLocaleString('vi-VN') + 'đ';
+            }
+
+            // Hiện alert (2 giây) rồi tự ẩn
+            function showAlert(msg, ok) {
+                if (!alertBox) return;
+                alertBox.classList.remove('d-none', 'alert-danger', 'alert-success');
+                alertBox.classList.add(ok ? 'alert-success' : 'alert-danger');
+                alertBox.textContent = msg || (ok ? 'Thành công' : 'Có lỗi xảy ra');
+                setTimeout(() => alertBox.classList.add('d-none'), HIDE_MS);
+            }
+
+            // Hiện lỗi ngay dưới ô mã + viền đỏ và tự ẩn sau 2 giây
+            function showInlineError(msg) {
+                if (input) {
+                    input.classList.add('is-invalid');
+                }
+                if (errorBlock) {
+                    errorBlock.textContent = msg;
+                    errorBlock.classList.remove('d-none');
+                }
+                showAlert(msg, false);
+                setTimeout(() => {
+                    if (input) {
+                        input.classList.remove('is-invalid');
+                    }
+                    if (errorBlock) {
+                        errorBlock.classList.add('d-none');
+                    }
+                }, HIDE_MS);
+            }
+
+            async function postJSON(url, payload) {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': CSRF,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(payload || {})
+                });
+                let data = {};
+                try {
+                    data = await res.json();
+                } catch (_) {}
+                if (!res.ok || data.ok === false) throw (data?.message || 'Mã giảm giá không hợp lệ.');
+                return data;
+            }
+
+            function showDiscountLine(show) {
+                if (!discountLine) return;
+                if (show) {
+                    discountLine.classList.remove('d-none');
+                    discountLine.classList.add('d-flex');
+                } else {
+                    discountLine.classList.add('d-none');
+                    discountLine.classList.remove('d-flex');
+                }
+            }
+
+            // Áp mã
+            applyBtn?.addEventListener('click', async () => {
+                const code = (input?.value || '').trim();
+                if (!code) {
+                    showInlineError('Vui lòng nhập mã giảm giá.');
+                    return;
+                }
+
+                applyBtn.disabled = true;
+                if (input) {
+                    input.classList.remove('is-invalid');
+                }
+                if (errorBlock) {
+                    errorBlock.classList.add('d-none');
+                }
+
+                try {
+                    const data = await postJSON(`{{ url('/checkout/apply-coupon') }}`, {
+                        coupon_code: code
+                    });
+
+                    subtotalEl && (subtotalEl.textContent = fmt(data.subtotal));
+                    shippingEl && (shippingEl.textContent = data.shipping > 0 ? fmt(data.shipping) : '—');
+                    totalEl && (totalEl.textContent = fmt(data.total));
+
+                    showDiscountLine(true);
+                    discountAmountEl.textContent = '-' + (parseInt(data.discount, 10) || 0).toLocaleString('vi-VN') + 'đ';
+                    discountCodeLbl.textContent = data.coupon_code;
+
+                    input.readOnly = true;
+                    applyBtn.disabled = true;
+
+                    statusBox?.classList.remove('d-none');
+                    if (appliedCodeEl) appliedCodeEl.textContent = data.coupon_code;
+                    if (appliedDiscEl) appliedDiscEl.textContent = fmt(data.discount);
+
+                    if (!document.getElementById('removeCouponBtn')) {
+                        const btn = document.createElement('button');
+                        btn.id = 'removeCouponBtn';
+                        btn.type = 'button';
+                        btn.className = 'btn btn-link btn-sm text-danger p-0 ms-2';
+                        btn.textContent = 'Gỡ mã';
+                        btn.addEventListener('click', removeHandler);
+                        statusBox.appendChild(btn);
+                    } else {
+                        document.getElementById('removeCouponBtn').disabled = false;
+                    }
+
+                    showAlert(data.message || 'Áp mã thành công!', true);
+                } catch (e) {
+
+                    showInlineError(String(e));
+                    applyBtn.disabled = false;
+                }
+            });
+
+            // Gỡ mã
+            async function removeHandler() {
+                const btn = document.getElementById('removeCouponBtn');
+                btn && (btn.disabled = true);
+                try {
+                    const data = await postJSON(`{{ url('/checkout/remove-coupon') }}`, {});
+
+                    subtotalEl && (subtotalEl.textContent = fmt(data.subtotal));
+                    shippingEl && (shippingEl.textContent = data.shipping > 0 ? fmt(data.shipping) : '—');
+                    totalEl && (totalEl.textContent = fmt(data.total));
+
+                    showDiscountLine(false);
+
+                    input.readOnly = false;
+                    input.value = '';
+                    applyBtn.disabled = false;
+
+                    // Clear lỗi (nếu còn)
+                    if (input) {
+                        input.classList.remove('is-invalid');
+                    }
+                    if (errorBlock) {
+                        errorBlock.classList.add('d-none');
+                    }
+
+                    if (statusBox) {
+                        statusBox.innerHTML = '<span class="text-muted">Nhập mã để nhận ưu đãi.</span>';
+                    }
+
+                    showAlert(data.message || 'Đã gỡ mã giảm giá.', true);
+                } catch (e) {
+                    showInlineError(String(e));
+                    btn && (btn.disabled = false);
+                }
+            }
+            document.getElementById('removeCouponBtn')?.addEventListener('click', removeHandler);
+        })();
+    </script>
 </body>
 
 </html>
-
-
-<!-- 🔹 Cách 2: Dùng package/API có sẵn
-
-Có nhiều repo/public JSON đã liệt kê đủ tỉnh–huyện–xã VN, ví dụ:
-👉 https://github.com/kenzouno1/DiaGioiHanhChinhVN
-
-Cách dùng:
-
-Tải file data.json về, lưu trong public/js/provinces.js hoặc storage/app/provinces.json.
-
-Load bằng AJAX/JS → fill <select> động (người chọn Tỉnh → tự load Quận/Huyện → rồi Xã).
-Như vậy không cần hardcode 63 tỉnh trong Blade. -->

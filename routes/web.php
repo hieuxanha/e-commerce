@@ -34,8 +34,9 @@ use App\Http\Controllers\Admin\ThongKeController;
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\AdminBrandController;
 use App\Http\Controllers\Admin\AdminCategoryController;
+use App\Http\Controllers\Admin\CouponController;
 
-
+use App\Http\Controllers\Admin\AdminBrandFrontController;
 
 
 use Illuminate\Support\Facades\Mail;
@@ -116,9 +117,15 @@ Route::get('/san-pham/id/{id}', [FrontProductController::class, 'showById'])
 Route::get('/thong-tin-giao-hang', [CheckoutController::class, 'index'])
     ->name('checkout.info');
 Route::post('/checkout/submit', [CheckoutController::class, 'submit'])->name('checkout.submit');
+Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.applyCoupon');
+Route::post('/checkout/clear-coupon', [CheckoutController::class, 'clearCoupon'])->name('checkout.clearCoupon');
+Route::post('/checkout/remove-coupon', [CheckoutController::class, 'removeCoupon'])->name('checkout.removeCoupon');
+
 
 Route::get('/da-dat-hang', [CheckoutController::class, 'placed'])
     ->name('order.placed');
+
+
 
 
 /*
@@ -128,6 +135,10 @@ Route::get('/da-dat-hang', [CheckoutController::class, 'placed'])
 */
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
     // tĩnh
+
+    Route::resource('coupons', CouponController::class)->except(['show']);
+    // Áp & bỏ mã
+
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -184,13 +195,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         ->whereNumber('id')
         ->name('sanpham.destroy');
 
-    Route::get('/thuong-hieu', [BrandFrontController::class, 'index'])
+    Route::get('/thuong-hieu', [AdminBrandFrontController::class, 'index'])
         ->name('brands.index');
 
-    Route::post('/brands', [AdminBrandController::class, 'store'])->name('brands.store');
+    Route::post('/brands', [BrandFrontController::class, 'store'])->name('brands.store');
 
-    Route::put('/brands/{brand}', [BrandFrontController::class, 'update'])->name('brands.update');
-    Route::delete('/brands/{brand}', [BrandFrontController::class, 'destroy'])->name('brands.destroy');
+    Route::put('/brands/{brand}', [AdminBrandFrontController::class, 'update'])->name('brands.update');
+    Route::delete('/brands/{brand}', [AdminBrandFrontController::class, 'destroy'])->name('brands.destroy');
     // Danh mục
     Route::get('/danh-muc', [AdminCategoryController::class, 'index'])
         ->name('categories.index');

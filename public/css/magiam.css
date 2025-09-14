@@ -1,0 +1,121 @@
+  /* ===== Coupon strip ===== */
+  .coupon-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(220px, 1fr));
+      gap: 24px
+  }
+
+  @media(max-width:992px) {
+      .coupon-strip {
+          grid-template-columns: repeat(2, 1fr)
+      }
+  }
+
+  @media(max-width:576px) {
+      .coupon-strip {
+          grid-template-columns: 1fr
+      }
+  }
+
+  .coupon-card {
+      position: relative;
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(16, 24, 40, .06);
+      overflow: hidden
+  }
+
+  .coupon-card:before,
+  .coupon-card:after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 26px;
+      height: 26px;
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 50%
+  }
+
+  .coupon-card:before {
+      left: -13px
+  }
+
+  .coupon-card:after {
+      right: -13px
+  }
+
+  .coupon-head {
+      padding: 12px 16px;
+      font-size: .95rem;
+      color: #777;
+      font-weight: 600
+  }
+
+  .coupon-body {
+      padding: 16px;
+      display: flex;
+      justify-content: center
+  }
+
+  .coupon-ticket {
+      width: 200px;
+      height: 100px;
+      border: 1px solid #e6e2de;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #faf8f7
+  }
+
+  .coupon-ticket small {
+      color: #9a8f86;
+      text-transform: uppercase;
+      letter-spacing: .05em
+  }
+
+  .coupon-amount {
+      font-size: 56px;
+      line-height: 1;
+      font-weight: 800;
+      color: #b79f8a
+  }
+
+  .coupon-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 16px;
+      border-top: 1px solid #eee
+  }
+
+  .coupon-foot .cond {
+      font-size: .9rem;
+      color: #6b7280
+  }
+
+  .coupon-copy.btn {
+      background: #cbb6a1;
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      padding: 6px 12px
+  }
+
+  .coupon-copy.btn:hover {
+      filter: brightness(.95)
+  }
+
+  /* Ẩn chip cũ trên ảnh sp (nếu có) */
+  .product-item {
+      position: relative
+  }
+
+  .promo-chip {
+      display: none !important
+  }

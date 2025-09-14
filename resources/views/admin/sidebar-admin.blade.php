@@ -91,11 +91,15 @@
 
 
         <!-- đang pjaats triển  -->
-
-        <a class="mi" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M3 3h18v14H3z" stroke-width="2" />
-                <path d="M3 9h18" stroke-width="2" />
-            </svg> Quản lý khuyến mãi và mã giảm giá</a>
+        <a href="{{ route('admin.coupons.index') }}"
+            class="mi d-inline-flex align-items-center gap-2 {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}"
+            aria-label="Quản lý mã giảm giá" title="Quản lý mã giảm giá">
+            <svg viewBox="0 0 24 24" class="mi-icon" aria-hidden="true">
+                <path d="M3 3h18v14H3z" />
+                <path d="M3 9h18" />
+            </svg>
+            <span>Quản lý mã giảm giá</span>
+        </a>
 
 
         <a class="mi" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor">

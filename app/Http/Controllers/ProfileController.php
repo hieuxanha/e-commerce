@@ -22,12 +22,16 @@ class ProfileController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
+        // 👉 Cập nhật & lấy thống kê cấp bậc
+        $loyalty = $user->syncMembershipLevel();
+
         $orders = Order::visibleForUser($user)
             ->latest()
             ->paginate(10);
 
-        return view('layouts.profile', compact('user', 'orders'));
+        return view('layouts.profile', compact('user', 'orders', 'loyalty'));
     }
+
 
     /**
      * Cập nhật thông tin cá nhân (họ tên, email, sđt, địa chỉ).

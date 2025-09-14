@@ -126,6 +126,20 @@
                         <div class="d-flex justify-content-between text-muted">
                             <span>Phí vận chuyển</span><span>{{ number_format($shipping,0,',','.') }}đ</span>
                         </div>
+
+
+                        {{-- DÒNG GIẢM GIÁ (nếu có) --}}
+                        @if(!empty($discount) && (int)$discount > 0)
+                        <div class="d-flex justify-content-between text-success">
+                            <span>
+                                Giảm mã
+                                @if(!empty($coupon_code))
+                                <strong>{{ $coupon_code }}</strong>
+                                @endif
+                            </span>
+                            <span>-{{ number_format((int)$discount,0,',','.') }}đ</span>
+                        </div>
+                        @endif
                         <hr>
                         <div class="d-flex justify-content-between fs-5">
                             <span>Tổng cộng</span><strong>{{ number_format($total,0,',','.') }}đ</strong>

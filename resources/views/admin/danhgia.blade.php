@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Quản lý đánh giá</title>
-    <link rel="stylesheet" href="{{ asset('css/admin/demo.css') }}" />
+    <link rel="stylesheet" href="{{ asset('css/admin/admin.css') }}" />
     <link rel="stylesheet" href="{{ asset('css/nhanvien/timkiem.css') }}" />
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
