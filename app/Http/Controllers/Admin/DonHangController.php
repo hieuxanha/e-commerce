@@ -10,6 +10,18 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DonHangController extends Controller
 {
+
+    public function show(Order $order)
+    {
+        // tải đủ quan hệ để đổ view chi tiết
+        $order->loadMissing([
+            'user:id,name,email,phone',
+            'items:id,order_id,product_id,product_name,price,quantity,total,image',
+        ]);
+
+        return view('admin.QL_donhang', compact('order'));
+    }
+
     /**
      * GET /admin/don-hang
      * Query hỗ trợ:

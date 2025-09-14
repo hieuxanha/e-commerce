@@ -1,227 +1,168 @@
-{{-- resources/views/admin/QL_donhang.blade.php --}}
+{{-- resources/views/admin/donhang_show.blade.php --}}
 <!DOCTYPE html>
 <html lang="vi">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Quản lý đơn hàng</title>
-
-    <link rel="stylesheet" href="{{ asset('css/admin/admin.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/nhanvien/timkiem.css') }}">
+    <title>Chi tiết đơn #{{ $order->code }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-
     <style>
-        .app {
-            display: flex;
-            min-height: 100vh
-        }
-
-        main {
-            flex: 1;
-            background: #fafafa
-        }
-
-        .top {
-            padding: 12px 16px;
-            border-bottom: 1px solid #eee;
-            background: #fff
-        }
-
-        .top .top-search {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap
-        }
-
-        .top .top-search-input {
-            flex: 1;
-            min-width: 260px
-        }
-
-        .table td,
-        .table th {
-            vertical-align: middle
-        }
-
         .subtle {
-            font-size: .9rem;
-            color: #6c757d
+            color: #6c757d;
+            font-size: .95rem
+        }
+
+        .kv {
+            min-width: 160px
         }
     </style>
 </head>
 
-<body>
-    <div class="app">
-        @include('admin.sidebar-admin')
+<body class="bg-light">
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="h4 m-0">Chi tiết đơn hàng</h1>
+            <a href="{{ route('admin.orders.index') }}" class="btn btn-outline-secondary">← Quay lại danh sách</a>
+        </div>
 
-        <main>
-            {{-- Top search --}}
-            <div class="top">
-                <form class="top-search" action="{{ route('admin.orders.index') }}" method="GET" role="search">
-                    <input type="text" name="q" class="top-search-input form-control"
-                        placeholder="Tìm theo tài khoản / người nhận / email / SĐT / địa chỉ..."
-                        value="{{ request('q') }}" autocomplete="off" />
-                    <input type="text" name="code" class="form-control" style="max-width:220px"
-                        placeholder="Mã đơn..." value="{{ request('code') }}">
-                    <button class="btn btn-primary" aria-label="Tìm kiếm">
-                        <i class="bi bi-search me-1"></i> Tìm
-                    </button>
-                    @if(request()->hasAny(['q','code','status','payment_status','payment_method']))
-                    <a href="{{ route('admin.orders.index') }}" class="btn btn-outline-secondary">Xóa lọc</a>
-                    @endif
-                </form>
-            </div>
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="fw-semibold mb-1">Mã đơn</div>
+                        <div>{{ $order->code }}</div>
+                        <div class="subtle mt-2">Tạo lúc: {{ $order->created_at?->format('d/m/Y H:i') }}</div>
+                        @if($order->paid_at)
+                        <div class="subtle">Thanh toán lúc: {{ \Illuminate\Support\Carbon::parse($order->paid_at)->format('d/m/Y H:i') }}</div>
+                        @endif
+                    </div>
 
-            <!-- nội dung ở dưới -->
-            <div class="container-fluid py-4">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <h1 class="h4 mb-0">Quản lý đơn hàng</h1>
-                    <div class="subtle">Tách rõ Khách đặt (tài khoản) và Người nhận.</div>
+                    <div class="col-md-4">
+                        <div class="fw-semibold mb-1">Khách đặt (tài khoản)</div>
+                        @if($order->user)
+                        <div>{{ $order->user->name }}</div>
+                        <div class="subtle">{{ $order->user->email }} — {{ $order->user->phone }}</div>
+                        @else
+                        <div class="subtle">— Không có tài khoản —</div>
+                        @endif
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="fw-semibold mb-1">Người nhận</div>
+                        <div>{{ $order->fullname }} — {{ $order->phone }}</div>
+                        <div class="subtle">
+                            {{ $order->address }}
+                            @if($order->ward_name), {{ $order->ward_name }} @endif
+                            @if($order->district_name), {{ $order->district_name }} @endif
+                            @if($order->province_name), {{ $order->province_name }} @endif
+                        </div>
+                    </div>
                 </div>
 
-                @if(session('success')) <div class="alert alert-success">{{ session('success') }}</div> @endif
-                @if(session('error')) <div class="alert alert-danger">{{ session('error') }}</div> @endif
+                <hr class="my-3">
 
-                <div class="card">
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table align-middle mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th style="width:50px" class="text-center">STT</th>
-                                        <th>Mã đơn</th>
-                                        <th>Khách đặt (tài khoản)</th>
-                                        <th>Người nhận</th>
-                                        <th class="text-end">Tổng tiền</th>
-                                        <th>Thanh toán</th>
-                                        <th>Trạng thái VC</th>
-                                        <th>Phương thức TT</th>
-                                        <th style="min-width:160px">Thời gian</th>
-                                        <th style="width:90px">Thao tác</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                    @forelse($orders as $o)
-                                    @php
-                                    // STT liên tục qua trang
-                                    $stt = method_exists($orders,'currentPage')
-                                    ? ($orders->currentPage()-1)*$orders->perPage()+$loop->iteration
-                                    : $loop->iteration;
-
-                                    $statusBadge = [
-                                    'da_dat' => 'secondary',
-                                    'cho_chuyen_phat' => 'warning',
-                                    'dang_trung_chuyen' => 'info',
-                                    'da_giao' => 'success',
-                                    ][$o->status] ?? 'secondary';
-
-                                    $payBadge = [
-                                    'chua_thanh_toan' => 'warning text-dark',
-                                    'da_thanh_toan' => 'success',
-                                    'that_bai' => 'danger',
-                                    'hoan_tien' => 'secondary',
-                                    ][$o->payment_status] ?? 'secondary';
-
-                                    $STATES = [
-                                    'da_dat'=>'Đã đặt',
-                                    'cho_chuyen_phat'=>'Chờ chuyển phát',
-                                    'dang_trung_chuyen'=>'Đang trung chuyển',
-                                    'da_giao'=>'Đã giao'
-                                    ];
-                                    $PAYS = [
-                                    'chua_thanh_toan'=>'Chưa thanh toán',
-                                    'da_thanh_toan'=>'Đã thanh toán',
-                                    'that_bai'=>'Thất bại',
-                                    'hoan_tien'=>'Hoàn tiền'
-                                    ];
-                                    @endphp
-                                    <tr>
-                                        {{-- STT --}}
-                                        <td class="text-center">{{ $stt }}</td>
-
-                                        {{-- Mã đơn (kèm email người nhận) --}}
-                                        <td class="fw-semibold">
-                                            {{ $o->code }}
-                                            <div class="subtle">{{ $o->email }}</div>
-                                        </td>
-
-                                        {{-- Khách đặt (tài khoản) --}}
-                                        <td>
-                                            @if($o->relationLoaded('user') ? $o->user : $o->user()->first())
-                                            <div class="fw-semibold">{{ $o->user->name ?? '' }}</div>
-                                            <div class="subtle">{{ $o->user->email ?? '' }}</div>
-                                            @else
-                                            <div class="subtle">— Không có tài khoản —</div>
-                                            @endif
-                                        </td>
-
-                                        {{-- Người nhận (từ form checkout) --}}
-                                        <td>
-                                            <div class="fw-semibold">{{ $o->fullname }}</div>
-                                            <div class="subtle">{{ $o->phone }}</div>
-                                            <div class="subtle">
-                                                {{ $o->address }}
-                                                @if($o->ward_name), {{ $o->ward_name }} @endif
-                                                @if($o->district_name), {{ $o->district_name }} @endif
-                                                @if($o->province_name), {{ $o->province_name }} @endif
-                                            </div>
-                                        </td>
-
-                                        {{-- Tổng tiền --}}
-                                        <td class="text-end fw-bold">{{ number_format($o->total,0,',','.') }}đ</td>
-
-                                        {{-- Thanh toán --}}
-                                        <td>
-                                            <span class="badge bg-{{ $payBadge }}">
-                                                {{ $PAYS[$o->payment_status] ?? $o->payment_status }}
-                                            </span>
-                                            @if(!empty($o->paid_at))
-                                            <div class="subtle mt-1">
-                                                TT lúc: {{ \Illuminate\Support\Carbon::parse($o->paid_at)->format('d/m/Y H:i') }}
-                                            </div>
-                                            @endif
-                                        </td>
-
-                                        {{-- Trạng thái vận chuyển --}}
-                                        <td><span class="badge bg-{{ $statusBadge }}">{{ $STATES[$o->status] ?? $o->status }}</span></td>
-
-                                        {{-- Phương thức thanh toán --}}
-                                        <td>{{ $o->payment_method ?? '—' }}</td>
-
-                                        {{-- Thời gian --}}
-                                        <td class="subtle">
-                                            Tạo: {{ $o->created_at?->format('d/m/Y H:i') }}<br>
-                                        </td>
-
-                                        {{-- Thao tác --}}
-                                        <td>
-                                            <a href="{{ route('admin.orders.show', $o) }}" class="btn btn-sm btn-outline-primary">Xem</a>
-                                        </td>
-                                    </tr>
-                                    @empty
-                                    <tr>
-                                        <td colspan="10" class="text-center text-muted p-4">Chưa có đơn phù hợp.</td>
-                                    </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="fw-semibold mb-1">Thanh toán</div>
+                        <div>PTTT: <span class="badge text-bg-secondary">{{ strtoupper($order->payment_method ?? '—') }}</span></div>
+                        <div>Trạng thái:
+                            @php
+                            $PAYS = [
+                            'chua_thanh_toan'=>'Chưa thanh toán',
+                            'da_thanh_toan'=>'Đã thanh toán',
+                            'that_bai'=>'Thất bại',
+                            'hoan_tien'=>'Hoàn tiền'
+                            ];
+                            @endphp
+                            <span class="badge text-bg-{{ [
+              'chua_thanh_toan'=>'warning text-dark',
+              'da_thanh_toan'=>'success',
+              'that_bai'=>'danger',
+              'hoan_tien'=>'secondary'
+            ][$order->payment_status] ?? 'secondary' }}">
+                                {{ $PAYS[$order->payment_status] ?? $order->payment_status }}
+                            </span>
                         </div>
                     </div>
 
-                    {{-- Pagination --}}
-                    @if($orders instanceof \Illuminate\Contracts\Pagination\Paginator)
-                    <div class="card-footer">
-                        {{ $orders->onEachSide(1)->links('pagination::bootstrap-5') }}
+                    <div class="col-md-4">
+                        <div class="fw-semibold mb-1">Vận chuyển</div>
+                        @php
+                        $STATES = [
+                        'da_dat'=>'Đã đặt',
+                        'cho_chuyen_phat'=>'Chờ chuyển phát',
+                        'dang_trung_chuyen'=>'Đang trung chuyển',
+                        'da_giao'=>'Đã giao'
+                        ];
+                        @endphp
+                        <div>Trạng thái: <span class="badge text-bg-{{ [
+            'da_dat'=>'secondary','cho_chuyen_phat'=>'warning',
+            'dang_trung_chuyen'=>'info','da_giao'=>'success'
+          ][$order->status] ?? 'secondary' }}">{{ $STATES[$order->status] ?? $order->status }}</span></div>
+
+                        {{-- Form cập nhật trạng thái nhanh --}}
+                        <form class="mt-2 d-flex gap-2" method="POST" action="{{ route('admin.orders.updateStatus', $order) }}">
+                            @csrf @method('PATCH')
+                            <select name="status" class="form-select form-select-sm" style="max-width:220px">
+                                @foreach(array_keys($STATES) as $st)
+                                <option value="{{ $st }}" @selected($order->status===$st)>{{ $STATES[$st] }}</option>
+                                @endforeach
+                            </select>
+                            <button class="btn btn-sm btn-primary">Cập nhật</button>
+                        </form>
                     </div>
-                    @endif
+
+                    <div class="col-md-4">
+                        <div class="fw-semibold mb-1">Tổng tiền</div>
+                        <div class="d-flex justify-content-between"><span class="subtle">Tạm tính</span><span>{{ number_format($order->subtotal,0,',','.') }}đ</span></div>
+                        <div class="d-flex justify-content-between"><span class="subtle">Phí vận chuyển</span><span>{{ number_format($order->shipping_fee,0,',','.') }}đ</span></div>
+                        <hr class="my-2">
+                        <div class="d-flex justify-content-between fw-bold"><span>Tổng</span><span>{{ number_format($order->total,0,',','.') }}đ</span></div>
+                    </div>
                 </div>
             </div>
-        </main>
-    </div>
+        </div>
 
+        {{-- Danh sách sản phẩm trong đơn --}}
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Sản phẩm</th>
+                                <th class="text-end">Đơn giá</th>
+                                <th class="text-end">SL</th>
+                                <th class="text-end">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($order->items as $i)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>
+                                    <div class="fw-semibold">{{ $i->product_name }}</div>
+                                    @if($i->image)
+                                    <div class="subtle">Ảnh: {{ $i->image }}</div>
+                                    @endif
+                                </td>
+                                <td class="text-end">{{ number_format($i->price,0,',','.') }}đ</td>
+                                <td class="text-end">{{ $i->quantity }}</td>
+                                <td class="text-end fw-semibold">{{ number_format($i->total,0,',','.') }}đ</td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="5" class="text-center text-muted p-4">Không có sản phẩm.</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
