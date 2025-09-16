@@ -149,7 +149,15 @@
 
                 <div class="d-flex flex-wrap gap-2">
                     <a href="{{ route('home') }}" class="btn btn-primary">Tiếp tục mua sắm</a>
-                    <a href="#" class="btn btn-outline-danger">Hủy đơn hàng</a>
+
+                    <form method="POST" action="{{ route('order.cancel') }}"
+                        onsubmit="return confirm('Bạn chắc muốn hủy đơn {{ $orderCode }}?');">
+                        @csrf
+                        <input type="hidden" name="order_code" value="{{ $orderCode }}">
+                        <button type="submit" class="btn btn-outline-danger">
+                            Hủy đơn hàng
+                        </button>
+                    </form>
                 </div>
 
             </div>

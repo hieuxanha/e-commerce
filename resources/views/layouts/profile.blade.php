@@ -9,6 +9,8 @@
 
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/magiam.css') }}">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
@@ -44,7 +46,7 @@
             color: #6b7280
         }
 
-        /* ==== Tracking step (đơn hàng & thang cấp bậc) ==== */
+        /* ==== Tracking step (đơn hàng & thăng cấp bậc) ==== */
         .step {
             width: 12px;
             height: 12px;
@@ -76,7 +78,6 @@
             background: #dc3545
         }
 
-        /* Huy hiệu cấp bậc */
         .rank-img {
             width: 36px;
             height: 36px;
@@ -103,7 +104,7 @@
                                 <i class="bi bi-shield-lock me-2"></i> Đổi mật khẩu
                             </a>
                             <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#tab-orders" role="tab">
-                                <i class="bi bi-receipt me-2"></i> Đơn hàng
+                                <i class="bi bi-receipt me-2"></i> Ưu đãi cho khách hàng
                             </a>
                             <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#tab-tracking" role="tab">
                                 <i class="bi bi-truck me-2"></i> Theo dõi đơn hàng
@@ -133,7 +134,7 @@
                                 </div>
 
                                 @if($user)
-                                {{-- ====== CẤP BẬC THÀNH VIÊN (mới) ====== --}}
+                                {{-- ====== CẤP BẬC THÀNH VIÊN ====== --}}
                                 @php
                                 $level = $user?->membership_level ?? 'dong';
                                 $levels = ['dong','bac','vang','kim_cuong'];
@@ -141,11 +142,12 @@
                                 $idx = array_search($level, $levels, true);
                                 if ($idx === false) $idx = 0;
 
+                                // ảnh trong public/images/ranks/...
                                 $imgs = [
-                                'dong' => asset('/ranks/dong.png'),
-                                'bac' => asset('/ranks/bac.png'),
-                                'vang' => asset('/ranks/vang.png'),
-                                'kim_cuong' => asset('/ranks/kim_cuong.png'),
+                                'dong' => asset('images/ranks/dong.png'),
+                                'bac' => asset('images/ranks/bac.png'),
+                                'vang' => asset('images/ranks/vang.png'),
+                                'kim_cuong' => asset('images/ranks/kim_cuong.png'),
                                 ];
                                 $badgeClass = match ($level) {
                                 'kim_cuong' => 'text-bg-primary',
@@ -227,31 +229,155 @@
                     </div>
                 </div>
 
-                {{-- Đơn hàng --}}
+                {{-- ƯU ĐÃI CHO KHÁCH HÀNG --}}
+                {{-- ƯU ĐÃI CHO KHÁCH HÀNG --}}
                 <div class="tab-pane fade" id="tab-orders" role="tabpanel">
                     <div class="card-soft p-4">
                         <div class="d-flex align-items-center gap-2 mb-3">
-                            <i class="bi bi-receipt text-success fs-5"></i>
-                            <div class="h6 mb-0">Đơn hàng của tôi</div>
+                            <i class="bi bi-ticket-perforated text-success fs-5"></i>
+                            <div class="h6 mb-0">Ưu đãi cho khách hàng</div>
                         </div>
-                        <ul class="nav nav-pills mb-3" role="tablist">
-                            <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#od-pending" type="button" role="tab">Chờ giao hàng</button></li>
-                            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#od-delivered" type="button" role="tab">Đã giao</button></li>
-                            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#od-canceled" type="button" role="tab">Đã hủy</button></li>
-                        </ul>
-                        <div class="tab-content">
-                            <div class="tab-pane fade show active" id="od-pending" role="tabpanel">
-                                <div class="text-muted">Chưa có đơn nào đang chờ giao.</div>
-                            </div>
-                            <div class="tab-pane fade" id="od-delivered" role="tabpanel">
-                                <div class="text-muted">Chưa có đơn đã giao.</div>
-                            </div>
-                            <div class="tab-pane fade" id="od-canceled" role="tabpanel">
-                                <div class="text-muted">Chưa có đơn đã hủy.</div>
-                            </div>
+
+                        @php
+                        $curLevel = $user?->membership_level ?? 'dong';
+                        $levelName = ['dong'=>'Đồng','bac'=>'Bạc','vang'=>'Vàng','kim_cuong'=>'Kim cương'][$curLevel] ?? $curLevel;
+                        $lvLabel = ['dong'=>'Đồng','bac'=>'Bạc','vang'=>'Vàng','kim_cuong'=>'Kim cương'];
+                        @endphp
+
+                        <div class="alert alert-success small">
+                            Bạn đang ở hạng <strong>{{ $levelName }}</strong>. Dưới đây là các mã đang hiệu lực dành cho hạng của bạn.
                         </div>
+
+                        @if(isset($coupons) && $coupons->count())
+                        {{-- Luôn hiển thị 1 mã/dòng trên mobile và 2 mã/dòng từ md (≥768px) --}}
+                        <div class="row row-cols-1 row-cols-md-2 g-3">
+                            @foreach($coupons as $cp)
+                            @php
+                            $isShip = ($cp->type ?? null) === 'free_shipping';
+                            $isPercent = ($cp->type ?? null) === 'percent';
+                            $isFixed = ($cp->type ?? null) === 'fixed';
+
+                            $amountText = $isShip
+                            ? 'Miễn phí vận chuyển'
+                            : ($isPercent
+                            ? rtrim(rtrim(number_format((float)$cp->value, 2, ',', '.'), '0'), ',') . '%'
+                            : number_format((int)($cp->value ?? 0), 0, ',', '.') . ' đ');
+
+                            $minTxt = $cp->min_subtotal ? number_format((int)$cp->min_subtotal, 0, ',', '.') . ' đ' : null;
+                            $maxTxt = $cp->max_discount ? number_format((int)$cp->max_discount, 0, ',', '.') . ' đ' : null;
+
+                            $scopeTxt = match($cp->ship_scope ?? null) {
+                            'province' => 'nội tỉnh',
+                            'nationwide' => 'toàn quốc',
+                            default => ''
+                            };
+
+                            $modalId = 'cpModal_' . ($cp->id ?? $loop->index);
+                            @endphp
+
+                            <div class="col">
+                                <div class="card border-success-subtle bg-success-subtle h-100">
+                                    <div class="card-body d-flex flex-column">
+                                        <div class="small text-success-emphasis mb-2">
+                                            Mã: <span class="fw-semibold">{{ $cp->code }}</span>
+                                            @if(!empty($cp->note))
+                                            <i class="bi bi-info-circle ms-1 text-muted"
+                                                data-bs-toggle="tooltip"
+                                                title="{{ $cp->note }}"></i>
+                                            @endif
+                                        </div>
+
+                                        <div class="p-3 text-center mb-3 border rounded-3 border-success-subtle bg-white">
+                                            <div class="text-uppercase small text-success">Giảm</div>
+                                            <div class="fs-2 fw-bold text-success mb-0">{{ $amountText }}</div>
+                                        </div>
+
+                                        <div class="small text-success-emphasis flex-grow-1">
+                                            @if($isShip)
+                                            Freeship {{ $scopeTxt }} @if($cp->min_subtotal) cho đơn từ {{ $minTxt }} @endif
+                                            @elseif($isPercent)
+                                            Giảm {{ $amountText }}
+                                            @if($cp->max_discount) (tối đa {{ $maxTxt }}) @endif
+                                            @if($cp->min_subtotal) cho đơn từ {{ $minTxt }} @endif
+                                            @else
+                                            Giảm {{ $amountText }}
+                                            @if($cp->min_subtotal) cho đơn từ {{ $minTxt }} @endif
+                                            @endif
+                                        </div>
+
+                                        <div class="mt-3 d-flex justify-content-between gap-2">
+                                            <button type="button"
+                                                class="btn btn-outline-success btn-sm flex-grow-1"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#{{ $modalId }}">
+                                                <i class="bi bi-info-circle me-1"></i> Điều kiện
+                                            </button>
+
+                                            <button class="btn btn-success btn-sm flex-grow-1 coupon-copy" data-code="{{ $cp->code }}">
+                                                <i class="bi bi-clipboard me-1"></i> Sao chép
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Modal điều kiện --}}
+                            <div class="modal fade" id="{{ $modalId }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h6 class="modal-title">Điều kiện áp dụng — {{ $cp->code }}</h6>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="small text-muted mb-2">Hiệu lực</div>
+                                            <div class="mb-3">
+                                                {{ $cp->starts_at ? $cp->starts_at->format('d/m/Y H:i') : '—' }} →
+                                                {{ $cp->ends_at ? $cp->ends_at->format('d/m/Y H:i') : '—' }}
+                                            </div>
+
+                                            @if(!empty($cp->eligible_levels))
+                                            <div class="small text-muted mb-2">Hạng áp dụng</div>
+                                            <div class="mb-3">
+                                                {{ collect($cp->eligible_levels)->map(fn($lv)=>$lvLabel[$lv]??$lv)->implode(', ') }}
+                                            </div>
+                                            @else
+                                            <div class="small text-muted mb-2">Hạng áp dụng</div>
+                                            <div class="mb-3">Mọi hạng</div>
+                                            @endif
+
+                                            @if($cp->min_subtotal)
+                                            <div class="small text-muted mb-2">Giá trị đơn tối thiểu</div>
+                                            <div class="mb-3">{{ $minTxt }}</div>
+                                            @endif
+
+                                            @if($isPercent && $cp->max_discount)
+                                            <div class="small text-muted mb-2">Giảm tối đa</div>
+                                            <div class="mb-3">{{ $maxTxt }}</div>
+                                            @endif
+
+                                            @if(!empty($cp->note))
+                                            <div class="small text-muted mb-2">Ghi chú</div>
+                                            <div>{{ $cp->note }}</div>
+                                            @endif
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-primary coupon-copy" data-code="{{ $cp->code }}">
+                                                <i class="bi bi-clipboard me-1"></i> Sao chép mã
+                                            </button>
+                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Đóng</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                        @else
+                        <div class="text-muted">Hiện chưa có ưu đãi nào dành riêng cho hạng {{ $levelName }}.</div>
+                        @endif
                     </div>
                 </div>
+
 
                 {{-- THEO DÕI ĐƠN HÀNG --}}
                 <div class="tab-pane fade" id="tab-tracking" role="tabpanel">
@@ -279,15 +405,23 @@
                             $stage = $stageMap[$st] ?? 0;
                             $isCan = ($stage === -1);
 
-                            $recvAddress = trim(collect([
-                            $o->address ?? null,$o->ward_name ?? null,$o->district_name ?? null,$o->province_name ?? null,
-                            ])->filter()->implode(', '));
+                            $recvAddress = trim(collect([$o->address ?? null,$o->ward_name ?? null,$o->district_name ?? null,$o->province_name ?? null])->filter()->implode(', '));
 
                             $orderData = [
-                            'id'=>$o->id,'code'=>$o->code ?? (string)$o->id,'created_at'=>optional($o->created_at)->format('d/m/Y H:i'),
-                            'status'=>$o->status,'payment_status'=>$o->payment_status,'payment_method'=>$o->payment_method,'total'=>(int)($o->total ?? 0),
-                            'account_name'=>$user->name ?? null,'account_email'=>$user->email ?? null,'account_phone'=>$user->phone ?? null,
-                            'recv_name'=>$o->fullname ?? null,'recv_phone'=>$o->phone ?? null,'recv_email'=>$o->email ?? null,'recv_address'=>$recvAddress,
+                            'id' => $o->id,
+                            'code' => $o->code ?? (string)$o->id,
+                            'created_at' => optional($o->created_at)->format('d/m/Y H:i'),
+                            'status' => $o->status,
+                            'payment_status'=> $o->payment_status,
+                            'payment_method'=> $o->payment_method,
+                            'total' => (int)($o->total ?? 0),
+                            'account_name' => $user->name ?? null,
+                            'account_email' => $user->email ?? null,
+                            'account_phone' => $user->phone ?? null,
+                            'recv_name' => $o->fullname ?? null,
+                            'recv_phone' => $o->phone ?? null,
+                            'recv_email' => $o->email ?? null,
+                            'recv_address' => $recvAddress,
                             ];
                             @endphp
 
@@ -448,6 +582,32 @@
         </div>
     </div>
 
+    {{-- Copy mã (handler cũ cho .btn-copy-code) --}}
+    <script>
+        (function() {
+            document.addEventListener('click', function(e) {
+                const btn = e.target.closest('.btn-copy-code');
+                if (!btn) return;
+                const code = btn.dataset.code || '';
+                if (!code) return;
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(code).then(() => {
+                        btn.classList.remove('btn-outline-primary');
+                        btn.classList.add('btn-success');
+                        btn.innerHTML = '<i class="bi bi-check2 me-1"></i> Đã sao chép';
+                        setTimeout(() => {
+                            btn.classList.add('btn-outline-primary');
+                            btn.classList.remove('btn-success');
+                            btn.innerHTML = '<i class="bi bi-clipboard me-1"></i> Sao chép';
+                        }, 1500);
+                    });
+                }
+            });
+        })();
+    </script>
+
+    {{-- Xem chi tiết đơn --}}
     <script>
         (function() {
             const STATES = {
@@ -477,6 +637,7 @@
                 try {
                     od = JSON.parse(btn.dataset.order || '{}')
                 } catch {}
+
                 document.getElementById('odCode').textContent = '#' + (od.code || od.id || '—');
                 document.getElementById('odCreated').textContent = od.created_at || '—';
                 document.getElementById('odAccName').textContent = od.account_name || '—';
@@ -490,9 +651,49 @@
                 document.getElementById('odPayState').textContent = PAY_STATES[od.payment_status] || od.payment_status || '—';
                 document.getElementById('odPayMethod').textContent = 'Phương thức: ' + (PAY_METHODS[od.payment_method] || od.payment_method || '—');
                 document.getElementById('odTotal').textContent = fmtMoney(od.total);
+
                 const a = document.getElementById('odDetailLink');
                 if (od.id) a.href = detailBase.replace(/\/$/, '') + '/' + od.id;
                 else a.removeAttribute('href');
+            });
+        })();
+    </script>
+
+    {{-- Tooltip + copy cho block coupon mới (.coupon-copy) --}}
+    <script>
+        // Khởi tạo tooltip cho các icon có data-bs-toggle="tooltip"
+        (function() {
+            const selector = '[data-bs-toggle="tooltip"]';
+            const init = () => {
+                document.querySelectorAll(selector).forEach(el => new bootstrap.Tooltip(el));
+            };
+            document.addEventListener('DOMContentLoaded', init);
+            document.addEventListener('shown.bs.modal', init);
+        })();
+
+        // Copy mã giảm giá cho các nút .coupon-copy
+        (function() {
+            document.addEventListener('click', function(e) {
+                const btn = e.target.closest('.coupon-copy');
+                if (!btn) return;
+                const code = btn.dataset.code || '';
+                if (!code) return;
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(code).then(() => {
+                        const old = btn.innerHTML;
+                        btn.innerHTML = '<i class="bi bi-check2 me-1"></i> Đã sao chép';
+                        btn.classList.add('btn-success');
+                        btn.classList.remove('btn-outline-success');
+                        setTimeout(() => {
+                            btn.innerHTML = old;
+                            // với nút trong card chính, giữ màu "success" đặc
+                            if (!old.includes('Điều kiện')) {
+                                btn.classList.add('btn-success');
+                            }
+                        }, 1400);
+                    });
+                }
             });
         })();
     </script>

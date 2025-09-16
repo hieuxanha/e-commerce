@@ -45,6 +45,10 @@
         select[multiple] {
             font-size: .95rem
         }
+
+        .level-badge {
+            font-size: .75rem
+        }
     </style>
 </head>
 
@@ -95,6 +99,7 @@
                                 <th class="text-end">Tối đa</th>
                                 <th class="text-end">Tối thiểu ĐH</th>
                                 <th>Phạm vi</th>
+                                <th>Hạng áp dụng</th>
                                 <th class="text-center">Trạng thái</th>
                                 <th>Hiệu lực</th>
                                 <th class="sticky-actions">Hành động</th>
@@ -102,6 +107,22 @@
                         </thead>
                         <tbody>
                             @forelse($coupons ?? [] as $c)
+                            @php
+                            $levelBadges = [];
+                            $levels = $c->eligible_levels ?? null; // null = mọi hạng
+                            if (is_array($levels) && count($levels)) {
+                            $map = [
+                            'dong' => ['Đồng','text-bg-secondary'],
+                            'bac' => ['Bạc','text-bg-light text-dark border'],
+                            'vang' => ['Vàng','text-bg-warning text-dark'],
+                            'kim_cuong' => ['Kim cương','text-bg-primary'],
+                            ];
+                            foreach ($levels as $lv) {
+                            $m = $map[$lv] ?? [$lv,'text-bg-secondary'];
+                            $levelBadges[] = '<span class="badge level-badge '.$m[1].'">'.$m[0].'</span>';
+                            }
+                            }
+                            @endphp
                             <tr>
                                 <td class="fw-semibold">{{ $c->code }}</td>
                                 <td class="text-center">
@@ -115,6 +136,13 @@
                                 <td class="text-end">{{ $c->max_discount ? number_format($c->max_discount) : '—' }}</td>
                                 <td class="text-end">{{ number_format($c->min_subtotal ?? 0) }}</td>
                                 <td><span class="badge bg-secondary-subtle text-secondary-emphasis">{{ $c->apply_scope }}</span></td>
+                                <td>
+                                    @if(is_array($levels) && count($levels))
+                                    {!! implode(' ', $levelBadges) !!}
+                                    @else
+                                    <span class="text-muted small">Mọi hạng</span>
+                                    @endif
+                                </td>
                                 <td class="text-center">
                                     <span class="badge {{ $c->status==='active'?'text-bg-success':'text-bg-secondary' }}">
                                         {{ $c->status==='active'?'Đang bật':'Tắt' }}
@@ -145,7 +173,8 @@
                                             data-note="{{ $c->note }}"
                                             data-product_ids="{{ isset($c->products) ? $c->products->pluck('id')->implode(',') : '' }}"
                                             data-category_ids="{{ isset($c->categories) ? $c->categories->pluck('id')->implode(',') : '' }}"
-                                            data-brand_ids="{{ isset($c->brands) ? $c->brands->pluck('id')->implode(',') : '' }}">
+                                            data-brand_ids="{{ isset($c->brands) ? $c->brands->pluck('id')->implode(',') : '' }}"
+                                            data-eligible_levels='@json($c->eligible_levels)'>
                                             <i class="bi bi-pencil-square me-1"></i>Sửa
                                         </button>
 
@@ -161,7 +190,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="9" class="text-center text-muted py-4">Chưa có mã nào.</td>
+                                <td colspan="10" class="text-center text-muted py-4">Chưa có mã nào.</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -241,6 +270,41 @@
                             <label class="form-label">Ghi chú</label>
                             <input type="text" name="note" class="form-control" placeholder="VD: Chào khách mới" value="{{ old('note') }}">
                         </div>
+
+                        {{-- ===== HẠNG THÀNH VIÊN ÁP DỤNG (CREATE) ===== --}}
+                        <div class="col-12">
+                            <label class="form-label d-flex align-items-center justify-content-between">
+                                <span>Hạng thành viên áp dụng</span>
+                                <span class="form-hint">Để trống = áp dụng mọi hạng</span>
+                            </label>
+                            <div class="row g-2">
+                                <div class="col-6 col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="lvCreateDong" name="eligible_levels[]" value="dong" @checked(is_array(old('eligible_levels')) && in_array('dong', old('eligible_levels')))>
+                                        <label class="form-check-label" for="lvCreateDong">Đồng</label>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="lvCreateBac" name="eligible_levels[]" value="bac" @checked(is_array(old('eligible_levels')) && in_array('bac', old('eligible_levels')))>
+                                        <label class="form-check-label" for="lvCreateBac">Bạc</label>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="lvCreateVang" name="eligible_levels[]" value="vang" @checked(is_array(old('eligible_levels')) && in_array('vang', old('eligible_levels')))>
+                                        <label class="form-check-label" for="lvCreateVang">Vàng</label>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="lvCreateKC" name="eligible_levels[]" value="kim_cuong" @checked(is_array(old('eligible_levels')) && in_array('kim_cuong', old('eligible_levels')))>
+                                        <label class="form-check-label" for="lvCreateKC">Kim cương</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{-- ===== /HẠNG THÀNH VIÊN ÁP DỤNG (CREATE) ===== --}}
 
                         {{-- Chi tiết phạm vi --}}
                         @if(!empty($products) || !empty($categories) || !empty($brands))
@@ -379,6 +443,41 @@
                             <input type="text" name="note" id="editNote" class="form-control">
                         </div>
 
+                        {{-- ===== HẠNG THÀNH VIÊN ÁP DỤNG (EDIT) ===== --}}
+                        <div class="col-12">
+                            <label class="form-label d-flex align-items-center justify-content-between">
+                                <span>Hạng thành viên áp dụng</span>
+                                <span class="form-hint">Để trống = áp dụng mọi hạng</span>
+                            </label>
+                            <div class="row g-2">
+                                <div class="col-6 col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="lvEditDong" name="eligible_levels[]" value="dong">
+                                        <label class="form-check-label" for="lvEditDong">Đồng</label>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="lvEditBac" name="eligible_levels[]" value="bac">
+                                        <label class="form-check-label" for="lvEditBac">Bạc</label>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="lvEditVang" name="eligible_levels[]" value="vang">
+                                        <label class="form-check-label" for="lvEditVang">Vàng</label>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="lvEditKC" name="eligible_levels[]" value="kim_cuong">
+                                        <label class="form-check-label" for="lvEditKC">Kim cương</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{-- ===== /HẠNG THÀNH VIÊN ÁP DỤNG (EDIT) ===== --}}
+
                         {{-- Chi tiết phạm vi khi EDIT --}}
                         @if(!empty($products) || !empty($categories) || !empty($brands))
                         <div class="col-12" id="editScopeDetails" style="display:none">
@@ -451,9 +550,7 @@
     <script>
         // ====== Common helpers ======
         function toggleBlock(show, el) {
-            if (el) {
-                el.style.display = show ? '' : 'none';
-            }
+            if (el) el.style.display = show ? '' : 'none';
         }
 
         function countSelected(select) {
@@ -461,9 +558,7 @@
         }
 
         function updateCount(labelEl, select) {
-            if (labelEl && select) {
-                labelEl.textContent = 'Đã chọn: ' + countSelected(select);
-            }
+            if (labelEl && select) labelEl.textContent = 'Đã chọn: ' + countSelected(select);
         }
 
         function installFilter(inputEl, selectEl) {
@@ -476,9 +571,8 @@
                     o.hidden = (q && !txt.includes(q));
                 });
             });
-            selectEl.addEventListener('change', () => updateCount(
-                document.getElementById(inputEl.getAttribute('data-count-target')), selectEl
-            ));
+            selectEl.addEventListener('change', () =>
+                updateCount(document.getElementById(inputEl.getAttribute('data-count-target')), selectEl));
         }
 
         // ===== CREATE: Scope details =====
@@ -520,15 +614,9 @@
         const filterCreateProducts = document.getElementById('filterCreateProducts');
         const filterCreateCategories = document.getElementById('filterCreateCategories');
         const filterCreateBrands = document.getElementById('filterCreateBrands');
-        if (filterCreateProducts) {
-            filterCreateProducts.setAttribute('data-count-target', 'countCreateProducts');
-        }
-        if (filterCreateCategories) {
-            filterCreateCategories.setAttribute('data-count-target', 'countCreateCategories');
-        }
-        if (filterCreateBrands) {
-            filterCreateBrands.setAttribute('data-count-target', 'countCreateBrands');
-        }
+        if (filterCreateProducts) filterCreateProducts.setAttribute('data-count-target', 'countCreateProducts');
+        if (filterCreateCategories) filterCreateCategories.setAttribute('data-count-target', 'countCreateCategories');
+        if (filterCreateBrands) filterCreateBrands.setAttribute('data-count-target', 'countCreateBrands');
         installFilter(filterCreateProducts, createProductsSel);
         installFilter(filterCreateCategories, createCategoriesSel);
         installFilter(filterCreateBrands, createBrandsSel);
@@ -536,7 +624,7 @@
         updateCount(document.getElementById('countCreateCategories'), createCategoriesSel);
         updateCount(document.getElementById('countCreateBrands'), createBrandsSel);
 
-        // ===== EDIT: Prefill, scope details, filters =====
+        // ===== EDIT: Prefill, scope details, filters, eligible_levels =====
         const editModal = document.getElementById('couponEditModal');
         editModal?.addEventListener('show.bs.modal', function(event) {
             const btn = event.relatedTarget;
@@ -546,7 +634,6 @@
                 const el = document.getElementById(idSel);
                 if (el) el.value = (val ?? '');
             };
-
             setVal('editCode', btn.getAttribute('data-code'));
             setVal('editType', btn.getAttribute('data-type'));
             setVal('editValue', btn.getAttribute('data-value'));
@@ -564,7 +651,6 @@
             setVal('editStart', toLocal(btn.getAttribute('data-starts_at')));
             setVal('editEnd', toLocal(btn.getAttribute('data-ends_at')));
             setVal('editNote', btn.getAttribute('data-note'));
-
             document.getElementById('editForm').action = "{{ url('/admin/coupons') }}/" + id;
 
             // Disable value if free_shipping
@@ -600,7 +686,6 @@
             const prodIds = (btn.getAttribute('data-product_ids') || '').split(',').filter(Boolean);
             const catIds = (btn.getAttribute('data-category_ids') || '').split(',').filter(Boolean);
             const brIds = (btn.getAttribute('data-brand_ids') || '').split(',').filter(Boolean);
-
             const editProducts = document.getElementById('editProducts');
             const editCategories = document.getElementById('editCategories');
             const editBrands = document.getElementById('editBrands');
@@ -637,6 +722,28 @@
             updateCount(document.getElementById('countEditProducts'), editProducts);
             updateCount(document.getElementById('countEditCategories'), editCategories);
             updateCount(document.getElementById('countEditBrands'), editBrands);
+
+            // ===== Prefill eligible_levels (EDIT) =====
+            function setChecked(id, on) {
+                const el = document.getElementById(id);
+                if (el) el.checked = !!on;
+            }
+            // clear all first
+            setChecked('lvEditDong', false);
+            setChecked('lvEditBac', false);
+            setChecked('lvEditVang', false);
+            setChecked('lvEditKC', false);
+            // parse incoming json
+            let levels = [];
+            try {
+                levels = JSON.parse(btn.getAttribute('data-eligible_levels'));
+            } catch (e) {}
+            if (Array.isArray(levels)) {
+                setChecked('lvEditDong', levels.includes('dong'));
+                setChecked('lvEditBac', levels.includes('bac'));
+                setChecked('lvEditVang', levels.includes('vang'));
+                setChecked('lvEditKC', levels.includes('kim_cuong'));
+            }
         });
     </script>
 </body>

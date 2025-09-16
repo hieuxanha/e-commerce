@@ -7,39 +7,46 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Quản lý vận chuyển</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    {{-- nếu cần thật sự trên trang admin, hãy giữ, còn không thì bỏ --}}
-    <link rel="stylesheet" href="{{ asset('css/nhanvien/timkiem.css') }}" />
-
-    <link rel="stylesheet" href="{{ asset('css/admin/admin.css') }}?v={{ filemtime(public_path('css/admin/admin.css')) }}" />
-
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    {{-- (tuỳ) CSS khác --}}
+    <link rel="stylesheet" href="{{ asset('css/admin/admin.css') }}?v={{ filemtime(public_path('css/admin/admin.css')) }}" />
+    <link rel="stylesheet" href="{{ asset('css/nhanvien/timkiem.css') }}">
+
+
+
     <style>
         .app {
             display: flex;
-            min-height: 100vh;
+            min-height: 100vh
         }
 
         main {
             flex: 1;
-            background: #fafafa;
+            background: #fafafa
         }
 
         .top {
             padding: 12px 16px;
             border-bottom: 1px solid #eee;
-            background: #fff;
+            background: #fff
         }
 
         .top .top-search {
             display: flex;
             gap: 8px;
-            max-width: 560px;
+            max-width: 560px
         }
 
         .top .top-search-input {
-            flex: 1;
+            flex: 1
+        }
+
+        .text-truncate {
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
         }
     </style>
 </head>
@@ -50,12 +57,11 @@
         {{-- Sidebar --}}
         @include('admin.sidebar-admin')
 
-        {{-- Main duy nhất --}}
+        {{-- Main --}}
         <main>
             <div class="top">
                 <form class="top-search" action="#" method="GET" role="search">
-                    <input type="text" name="q" class="top-search-input"
-                        placeholder="Tìm sản phẩm, danh mục, thương hiệu..." autocomplete="off" />
+                    <input type="text" name="q" class="top-search-input" placeholder="Tìm kiếm..." autocomplete="off" />
                     <button class="top-search-btn" aria-label="Tìm kiếm">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="11" cy="11" r="7"></circle>
@@ -72,18 +78,14 @@
                 </div>
 
                 {{-- Flash messages --}}
-                @if(session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-                @endif
-                @if(session('error'))
-                <div class="alert alert-danger">{{ session('error') }}</div>
-                @endif
+                @if(session('success')) <div class="alert alert-success">{{ session('success') }}</div> @endif
+                @if(session('error')) <div class="alert alert-danger">{{ session('error') }}</div> @endif
 
                 {{-- Bộ lọc --}}
                 <form method="GET" action="{{ route('admin.vanchuyen.index') }}" class="row g-2 align-items-end mb-3">
                     <div class="col-md-3">
                         <label class="form-label">Tìm theo mã đơn</label>
-                        <input type="text" name="code" value="{{ request('code') }}" class="form-control" placeholder="VD: COD250829...">
+                        <input type="text" name="code" value="{{ request('code') }}" class="form-control" placeholder="VD: COD2509...">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Trạng thái vận chuyển</label>
@@ -135,7 +137,7 @@
                                     <tr>
                                         <th>Mã đơn</th>
                                         <th>Khách hàng</th>
-                                        <th>Tổng tiền</th>
+                                        <th>Thông tin đơn</th> {{-- Cột MỚI --}}
                                         <th>Thanh toán</th>
                                         <th>Trạng thái VC</th>
                                         <th>Cập nhật trạng thái</th>
@@ -161,12 +163,16 @@
 
                                     $statusText = $STATES[$o->status] ?? $o->status;
                                     $payText = $PAYS[$o->payment_status] ?? $o->payment_status;
+
+                                    $maxPreview = 2;
+                                    $collapseId = 'items-'.$o->id;
                                     @endphp
                                     <tr>
                                         <td class="fw-semibold">
                                             {{ $o->code }}<br>
                                             <span class="text-muted small">{{ $o->email }}</span>
                                         </td>
+
                                         <td>
                                             <div class="fw-semibold">{{ $o->fullname }}</div>
                                             <div class="text-muted small">{{ $o->phone }}</div>
@@ -177,9 +183,52 @@
                                                 @if($o->province_name), {{ $o->province_name }} @endif
                                             </div>
                                         </td>
-                                        <td class="fw-bold">{{ number_format($o->total,0,',','.') }}đ</td>
+
+
+                                        {{-- Cột MỚI: Thông tin đơn --}}
+                                        <td style="min-width:260px">
+                                            <div class="small">
+
+                                                <div>
+                                                    <span class="text-muted">Phí ship:</span>
+                                                    <strong>{{ number_format($o->shipping_fee,0,',','.') }}đ</strong>
+                                                </div>
+
+                                            </div>
+
+                                            {{-- Tóm tắt sản phẩm --}}
+                                            @php
+                                            $totalItems = $o->items->count();
+                                            $preview = $o->items->take($maxPreview);
+                                            $rest = $totalItems - $maxPreview;
+                                            @endphp
+                                            <div class="mt-2">
+                                                @foreach($preview as $it)
+                                                <div class="d-flex justify-content-between small">
+                                                    <span class="text-truncate me-2" title="{{ $it->product_name }}">{{ $it->product_name }}</span>
+                                                    <span class="text-nowrap">x{{ $it->quantity }} · {{ number_format($it->total,0,',','.') }}đ</span>
+                                                </div>
+                                                @endforeach
+
+                                                @if($rest > 0)
+                                                <a class="small" data-bs-toggle="collapse" href="#{{ $collapseId }}" role="button" aria-expanded="false" aria-controls="{{ $collapseId }}">
+                                                    +{{ $rest }} sản phẩm nữa
+                                                </a>
+                                                <div class="collapse mt-1" id="{{ $collapseId }}">
+                                                    @foreach($o->items->skip($maxPreview) as $it)
+                                                    <div class="d-flex justify-content-between small">
+                                                        <span class="text-truncate me-2" title="{{ $it->product_name }}">{{ $it->product_name }}</span>
+                                                        <span class="text-nowrap">x{{ $it->quantity }} · {{ number_format($it->total,0,',','.') }}đ</span>
+                                                    </div>
+                                                    @endforeach
+                                                </div>
+                                                @endif
+                                            </div>
+                                        </td>
+
                                         <td><span class="badge bg-{{ $payBadge }}">{{ $payText }}</span></td>
                                         <td><span class="badge bg-{{ $statusBadge }}">{{ $statusText }}</span></td>
+
                                         <td style="min-width:260px">
                                             <form method="POST" action="{{ route('admin.vanchuyen.updateStatus', $o) }}" class="d-flex gap-2">
                                                 @csrf
@@ -193,6 +242,7 @@
                                             </form>
                                             <div class="form-text">Chọn <b>Đã giao</b> rồi cập nhật để gửi email.</div>
                                         </td>
+
                                         <td class="text-muted small">
                                             Tạo: {{ $o->created_at?->format('d/m/Y H:i') }}<br>
                                             Sửa: {{ $o->updated_at?->format('d/m/Y H:i') }}
@@ -200,19 +250,19 @@
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="7" class="text-center text-muted p-4">Chưa có đơn phù hợp.</td>
+                                        <td colspan="8" class="text-center text-muted p-4">Chưa có đơn phù hợp.</td>
                                     </tr>
                                     @endforelse
                                 </tbody>
                             </table>
                         </div>
                     </div>
+
                     @if($orders instanceof \Illuminate\Contracts\Pagination\Paginator)
                     <div class="card-footer">
                         {{ $orders->onEachSide(1)->links('pagination::bootstrap-5') }}
                     </div>
                     @endif
-
                 </div>
             </div>
         </main>

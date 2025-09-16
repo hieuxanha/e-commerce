@@ -11,11 +11,7 @@ use Illuminate\Support\Facades\Schema;
 
 class CouponController extends Controller
 {
-    /**
-     * Lấy options cho select (id, name) từ 1 bảng/model.
-     * Tự dò cột hiển thị: name, ten, title, label, product_name, brand_name, category_name, code, sku, slug
-     * Nếu không có, tạo nhãn fallback: "<prefix> #<id>"
-     */
+    /** Lấy options cho select (id, name) từ 1 bảng/model. */
     private function pickOptions(string $table, string $modelClass, string $fallbackPrefix = '#')
     {
         if (!class_exists($modelClass) || !Schema::hasTable($table)) {
@@ -24,11 +20,10 @@ class CouponController extends Controller
 
         $q = $modelClass::query()->select('id');
 
-        // ƯU TIÊN các cột tên tiếng Việt nếu có:
         $candidates = [
-            'ten_san_pham',     // products
-            'ten_danh_muc',     // categories
-            'ten_thuong_hieu',  // brands
+            'ten_san_pham', // products
+            'ten_danh_muc', // categories
+            'ten_thuong_hieu', // brands
             'name',
             'ten',
             'title',
@@ -52,19 +47,16 @@ class CouponController extends Controller
         if ($picked) {
             $q->addSelect(DB::raw("$picked as name"))->orderBy($picked);
         } else {
-            // fallback: <prefix> #id
             $prefix = trim($fallbackPrefix) !== '' ? $fallbackPrefix . ' ' : '';
             $q->addSelect(DB::raw("CONCAT('$prefix#', id) as name"))->orderBy('id');
         }
 
-        // hạn chế số lượng với products cho nhẹ trang
         if ($table === 'products') {
             $q->limit(300);
         }
 
         return $q->get();
     }
-
 
     public function index(Request $req)
     {
@@ -80,11 +72,11 @@ class CouponController extends Controller
             ->latest()
             ->paginate(10);
 
-        // lấy list cho 3 phạm vi
-        $products   = $this->pickOptions('products',   \App\Models\Product::class,   'SP');
-        $categories = $this->pickOptions('categories', \App\Models\Category::class,  'DM');
-        $brands     = $this->pickOptions('brands',     \App\Models\Brand::class,     'TH');
+        $products   = $this->pickOptions('products',   \App\Models\Product::class,  'SP');
+        $categories = $this->pickOptions('categories', \App\Models\Category::class, 'DM');
+        $brands     = $this->pickOptions('brands',     \App\Models\Brand::class,    'TH');
 
+        // Lưu ý: view của bạn tên 'admin.QL_magiamgia'
         return view('admin.QL_magiamgia', compact('q', 'coupons', 'products', 'categories', 'brands'));
     }
 
@@ -104,6 +96,10 @@ class CouponController extends Controller
             'product_ids'  => 'array',
             'category_ids' => 'array',
             'brand_ids'    => 'array',
+
+            // NEW: hạng áp dụng
+            'eligible_levels'   => 'nullable|array',
+            'eligible_levels.*' => 'in:dong,bac,vang,kim_cuong',
         ]);
 
         $data['starts_at'] = $data['starts_at'] ? Carbon::parse($data['starts_at']) : null;
@@ -113,6 +109,10 @@ class CouponController extends Controller
             $data['value'] = null;
             $data['max_discount'] = null;
         }
+
+        // NEW: rỗng => null (áp dụng mọi hạng)
+        $levels = $req->input('eligible_levels', []);
+        $data['eligible_levels'] = (is_array($levels) && count($levels)) ? array_values($levels) : null;
 
         DB::transaction(function () use ($data, $req) {
             $coupon = Coupon::create($data);
@@ -147,6 +147,10 @@ class CouponController extends Controller
             'product_ids'  => 'array',
             'category_ids' => 'array',
             'brand_ids'    => 'array',
+
+            // NEW: hạng áp dụng
+            'eligible_levels'   => 'nullable|array',
+            'eligible_levels.*' => 'in:dong,bac,vang,kim_cuong',
         ]);
 
         $data['starts_at'] = $data['starts_at'] ? Carbon::parse($data['starts_at']) : null;
@@ -156,6 +160,10 @@ class CouponController extends Controller
             $data['value'] = null;
             $data['max_discount'] = null;
         }
+
+        // NEW
+        $levels = $req->input('eligible_levels', []);
+        $data['eligible_levels'] = (is_array($levels) && count($levels)) ? array_values($levels) : null;
 
         DB::transaction(function () use ($coupon, $data, $req) {
             $coupon->update($data);

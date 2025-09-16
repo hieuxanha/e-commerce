@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Schema; // thêm import
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -12,9 +13,11 @@ use Illuminate\Support\Facades\URL;
 use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Mail\OrderPlacedMail;
 use App\Models\Coupon;
+use App\Models\Product; // <-- NHỚ IMPORT
+use App\Mail\OrderPlacedMail;
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 
 class CheckoutController extends Controller
 {
@@ -122,18 +125,16 @@ class CheckoutController extends Controller
         $subtotal = array_reduce($cartItems, fn($c, $it) => $c + ($it['price'] * $it['qty']), 0);
         $shipping = 0;
 
-        // Build tạm coupon array (chỉ set session nếu hợp lệ)
         $couponArr = [
             'id'           => $coupon->id,
             'code'         => $coupon->code,
-            'type'         => $coupon->type,           // percent | fixed | free_shipping
+            'type'         => $coupon->type,
             'value'        => (int) $coupon->value,
             'max_discount' => (int) $coupon->max_discount,
             'min_subtotal' => (int) $coupon->min_subtotal,
-            'apply_scope'  => $coupon->apply_scope,    // all | cart | product | category | brand
+            'apply_scope'  => $coupon->apply_scope,
         ];
 
-        // Kiểm tra phạm vi áp dụng
         $eligibleSubtotal = $this->eligibleSubtotalByScope(
             $couponArr['apply_scope'] ?? 'cart',
             $couponArr['id'] ?? null,
@@ -141,27 +142,19 @@ class CheckoutController extends Controller
             $subtotal
         );
         if ($eligibleSubtotal <= 0) {
-            return response()->json([
-                'ok' => false,
-                'message' => 'Mã giảm giá không áp dụng được.'
-            ], 422);
+            return response()->json(['ok' => false, 'message' => 'Mã giảm giá không áp dụng được.'], 422);
         }
 
-        // Kiểm tra min subtotal
         $min = (int) ($couponArr['min_subtotal'] ?? 0);
         if ($min > 0 && $subtotal < $min) {
             return response()->json([
                 'ok' => false,
-                'message' => 'Mã áp dụng cho đơn từ ' . number_format($min, 0, ',', '.') . 'đ. '
-                    . 'Tạm tính hiện tại: ' . number_format($subtotal, 0, ',', '.') . 'đ.'
+                'message' => 'Mã áp dụng cho đơn từ ' . number_format($min, 0, ',', '.') . 'đ. Tạm tính hiện tại: ' . number_format($subtotal, 0, ',', '.') . 'đ.'
             ], 422);
         }
 
-        // Tính discount & shipping, HỢP LỆ => set session
         [$discount, $finalShipping] = $this->computeDiscountAndShipping($couponArr, $cartItems, $subtotal, $shipping);
-
         session(['applied_coupon' => $couponArr]);
-
         $total = max(0, $subtotal + $finalShipping - $discount);
 
         return response()->json([
@@ -255,7 +248,7 @@ class CheckoutController extends Controller
             'ward_id.required'     => 'Vui lòng chọn phường / xã.',
             'payment_method.required' => 'Vui lòng chọn phương thức thanh toán.',
             'payment_method.in'      => 'Phương thức thanh toán không hợp lệ.',
-            'note.max'           => 'Ghi chú tối đa 1000 ký tự.',
+            'note.max'               => 'Ghi chú tối đa 1000 ký tự.',
         ]);
 
         if (!Auth::check()) return redirect()->route('login')->with('error', 'Vui lòng đăng nhập.');
@@ -293,7 +286,6 @@ class CheckoutController extends Controller
         $shipping = 0;
 
         $applied = session('applied_coupon');
-        // Re-check coupon khi submit
         if ($applied) {
             $cartItemsForCheck = array_map(function ($li) {
                 return [
@@ -340,45 +332,72 @@ class CheckoutController extends Controller
         $etaFrom   = now()->addDays(2)->format('d/m');
         $etaTo     = now()->addDays(3)->format('d/m');
 
-        $order = DB::transaction(function () use ($request, $userId, $orderCode, $subtotal, $finalShipping, $discount, $total, $lines, $applied) {
-            $order = Order::create([
-                'user_id'        => $userId,
-                'code'           => $orderCode,
-                'status'         => 'da_dat',
-                'fullname'       => $request->fullname,
-                'email'          => $request->email,
-                'phone'          => $request->phone,
-                'address'        => $request->address,
-                'province_id'    => $request->province_id,
-                'district_id'    => $request->district_id,
-                'ward_id'        => $request->ward_id,
-                'province_name'  => $request->province_name,
-                'district_name'  => $request->district_name,
-                'ward_name'      => $request->ward_name,
-                'note'           => $request->note,
-                'payment_method' => $request->payment_method,
-                'payment_status' => 'chua_thanh_toan',
-                'subtotal'       => (int) $subtotal,
-                'shipping_fee'   => (int) $finalShipping,
-                'total'          => (int) $total,
-            ]);
+        try {
+            $order = DB::transaction(function () use ($request, $userId, $orderCode, $subtotal, $finalShipping, $discount, $total, $lines) {
 
-            foreach ($lines as $li) {
-                OrderItem::create([
-                    'order_id'     => $order->id,
-                    'product_id'   => $li['product_id'] ?? null,
-                    'product_name' => $li['name'],
-                    'price'        => (int) $li['price'],
-                    'quantity'     => (int) $li['qty'],
-                    'total'        => (int) $li['total'],
-                    'image'        => $li['image'],
+                // (1) Kiểm tra & trừ kho NGAY, khóa dòng để tránh race condition
+                foreach ($lines as $li) {
+                    $p = Product::lockForUpdate()->find($li['product_id']);
+                    if (!$p) {
+                        throw new \RuntimeException("Sản phẩm #{$li['product_id']} không tồn tại.");
+                    }
+                    $avai = (int) ($p->so_luong_ton_kho ?? 0);
+                    if ($avai < (int) $li['qty']) {
+                        throw new \RuntimeException("{$p->ten_san_pham} chỉ còn {$avai}, không đủ {$li['qty']}.");
+                    }
+                }
+                foreach ($lines as $li) {
+                    $p = Product::lockForUpdate()->find($li['product_id']);
+                    $p->decrement('so_luong_ton_kho', (int) $li['qty']);
+                }
+
+                // (2) Tạo đơn
+                $order = Order::create([
+                    'user_id'        => $userId,
+                    'code'           => $orderCode,
+                    'status'         => 'da_dat',
+                    'fullname'       => $request->fullname,
+                    'email'          => $request->email,
+                    'phone'          => $request->phone,
+                    'address'        => $request->address,
+                    'province_id'    => $request->province_id,
+                    'district_id'    => $request->district_id,
+                    'ward_id'        => $request->ward_id,
+                    'province_name'  => $request->province_name,
+                    'district_name'  => $request->district_name,
+                    'ward_name'      => $request->ward_name,
+                    'note'           => $request->note,
+                    'payment_method' => $request->payment_method,
+                    'payment_status' => 'chua_thanh_toan', // COD
+                    'subtotal'       => (int) $subtotal,
+                    'shipping_fee'   => (int) $finalShipping,
+                    'total'          => (int) $total,
+                    'stock_applied'  => true, // đã trừ kho
                 ]);
-            }
 
-            CartItem::where('user_id', $userId)->delete();
+                // (3) Items
+                foreach ($lines as $li) {
+                    OrderItem::create([
+                        'order_id'     => $order->id,
+                        'product_id'   => $li['product_id'] ?? null,
+                        'product_name' => $li['name'],
+                        'price'        => (int) $li['price'],
+                        'quantity'     => (int) $li['qty'],
+                        'total'        => (int) $li['total'],
+                        'image'        => $li['image'],
+                    ]);
+                }
 
-            return $order->load('items');
-        });
+                // (4) Xóa giỏ
+                CartItem::where('user_id', $userId)->delete();
+
+                return $order->load('items');
+            });
+        } catch (\Throwable $e) {
+            return back()->withInput()->withErrors([
+                'stock' => $e->getMessage() ?: 'Không đủ tồn kho cho một số sản phẩm.'
+            ]);
+        }
 
         if (!empty($order->email)) {
             Log::info('SEND_ORDER_MAIL', ['order_code' => $order->code, 'to' => $order->email]);
@@ -416,10 +435,10 @@ class CheckoutController extends Controller
                     'image' => $this->resolveImageUrl($i->image) ?: asset('images/no-image.png'),
                 ];
             })->all(),
-            'subtotal' => (int) $order->subtotal,
-            'shipping' => (int) $order->shipping_fee,
-            'total'    => (int) $order->total,
-            'discount'    => (int) $discount,
+            'subtotal'    => (int) $order->subtotal,
+            'shipping'    => (int) $order->shipping_fee,
+            'total'       => (int) $order->total,
+            'discount'    => (int) ($discount ?? 0),
             'coupon_code' => $applied['code'] ?? null,
         ]);
 
@@ -536,5 +555,79 @@ class CheckoutController extends Controller
             return ltrim(str_replace('\\', '/', $trimmed), '/');
         }
         return ltrim(str_replace('\\', '/', $path), '/');
+    }
+
+
+    public function cancel(Request $request)
+    {
+        $request->validate(['order_code' => 'required|string']);
+
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập.');
+        }
+
+        $order = Order::with('items')
+            ->where('code', $request->order_code)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$order) {
+            return back()->with('error', 'Không tìm thấy đơn hàng.');
+        }
+
+        // Chỉ hủy khi đơn còn sớm
+        if (!in_array($order->status, ['da_dat', 'cho_chuyen_phat', 'dang_xu_ly'])) {
+            return back()->with('error', 'Đơn không thể hủy ở trạng thái hiện tại.');
+        }
+
+        // Nếu đã thanh toán online, tùy chính sách của bạn
+        if ($order->payment_status === 'da_thanh_toan' && $order->payment_method === 'vnpay') {
+            return back()->with('error', 'Đơn đã thanh toán, vui lòng liên hệ CSKH để được hỗ trợ hủy.');
+        }
+
+        $restocked = [];
+
+        try {
+            DB::transaction(function () use ($order, &$restocked) {
+                // Chỉ hoàn kho nếu trước đó đã trừ và chưa hoàn
+                if ($order->stock_applied) {
+                    foreach ($order->items as $it) {
+                        if (!$it->product_id) continue;
+
+                        // Khóa dòng để tránh race condition
+                        $p = Product::lockForUpdate()->find($it->product_id);
+                        if (!$p) continue;
+
+                        $returned = (int) $it->quantity;
+                        $p->increment('so_luong_ton_kho', $returned);
+                        $p->refresh();
+
+                        $restocked[] = [
+                            'id'       => $p->id,
+                            'name'     => $p->ten_san_pham,
+                            'returned' => $returned,
+                            'now'      => (int) ($p->so_luong_ton_kho ?? 0),
+                        ];
+                    }
+                    // Đánh dấu đã hoàn để sau bấm lại không + kho lần nữa
+                    $order->stock_applied = false;
+                }
+
+                $order->status = 'da_huy';
+                if (Schema::hasColumn('orders', 'canceled_at')) {
+                    $order->canceled_at = now();
+                }
+                $order->save();
+            });
+        } catch (\Throwable $e) {
+            report($e);
+            return back()->with('error', 'Không hủy được đơn. Vui lòng thử lại.');
+        }
+
+        // Gửi thông tin hoàn kho về flash để bạn nhìn được kết quả
+        return redirect()
+            ->route('home')
+            ->with('success', 'Đã hủy đơn ' . $order->code . ' và hoàn kho thành công.')
+            ->with('restocked', $restocked);
     }
 }

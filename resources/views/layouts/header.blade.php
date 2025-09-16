@@ -72,7 +72,9 @@
             <div class="header-content">
                 {{-- Logo --}}
                 <div class="logo">
-                    <div class="logo-icon"><img src="{{ asset('img/logo_web.jpg') }}" alt="Lắc Đầu Logo"></div>
+                    <a href="{{ url('/') }}" class="logo-icon" aria-label="Về trang chủ">
+                        <img src="{{ asset('img/logo_web.jpg') }}" alt="Lắc Đầu Logo">
+                    </a>
                 </div>
 
                 {{-- Search + Danh mục --}}

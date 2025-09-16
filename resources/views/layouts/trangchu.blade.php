@@ -472,7 +472,7 @@
             @foreach($categories as $cat)
             <div class="product-section">
                 <div class="section-header">
-                    <h2 class="section-title">{{ strtoupper($cat->ten_danh_muc) }} 🐭 🐁</h2>
+                    <h2 class="section-title">{{ strtoupper($cat->ten_danh_muc) }} </h2>
                     <div class="section-filters">
                         <a class="filter-tab" href="{{ route('danhmuc.show', $cat->id) }}">XEM THÊM →</a>
                     </div>

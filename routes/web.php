@@ -124,7 +124,9 @@ Route::post('/checkout/remove-coupon', [CheckoutController::class, 'removeCoupon
 
 Route::get('/da-dat-hang', [CheckoutController::class, 'placed'])
     ->name('order.placed');
+Route::post('/don-hang/huy', [CheckoutController::class, 'cancel'])
 
+    ->name('order.cancel');
 
 
 
@@ -157,7 +159,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/don-hang', [DonHangController::class, 'index'])->name('orders.index');
     Route::patch('/don-hang/{order}/status', [DonHangController::class, 'updateStatus'])->name('orders.updateStatus');
     Route::post('/don-hang/bulk-update', [DonHangController::class, 'bulkUpdate'])->name('orders.bulkUpdate');
-    Route::get('/don-hang/{order}', [DonHangController::class, 'show'])->name('orders.show'); // nếu dùng
+    // ► API nạp nội dung modal chi tiết đơn
+    Route::get('/don-hang/{order}', [DonHangController::class, 'show'])
+        ->name('orders.show');
 
     Route::get('/khach-hang', [CustomerAdminController::class, 'index'])->name('QL_khachhang.index');
     Route::delete('/khach-hang/{user}', [CustomerAdminController::class, 'destroy'])
