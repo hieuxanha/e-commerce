@@ -45,7 +45,6 @@
                 <form class="top-search" action="{{ route('admin.QL_khachhang.index') }}" method="GET" role="search">
                     <input type="text" name="q" class="top-search-input" placeholder="Tìm theo tên / email / SĐT..."
                         value="{{ $q }}" autocomplete="off">
-
                     <button class="top-search-btn ms-2" aria-label="Tìm kiếm">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="11" cy="11" r="7"></circle>
@@ -97,21 +96,30 @@
                                         <th>Email / SĐT</th>
                                         <th>Giới tính</th>
                                         <th>Vai trò</th>
+                                        <th>Hạng</th> {{-- THÊM CỘT HẠNG --}}
                                         <th>Địa chỉ</th>
                                         <th class="text-end">SL đơn</th>
-                                        <th class="text-end">Đã chi</th>
+                                        <th class="text-end">Đã Từng chi</th>
                                         <th class="text-end" style="width:90px">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @forelse($users as $u)
                                     @php
-                                    $badge = ['khach_hang'=>'secondary','nhan_vien'=>'info','admin'=>'danger'][$u->role] ?? 'secondary';
+                                    $badgeRole = ['khach_hang'=>'secondary','nhan_vien'=>'info','admin'=>'danger'][$u->role] ?? 'secondary';
                                     $genderTxt = $u->gender === 'nam' ? 'Nam' : ($u->gender === 'nu' ? 'Nữ' : '—');
 
                                     // thống kê (fallback 0 nếu chưa withCount/withSum)
                                     $ordersCount = (int)($u->orders_count ?? 0);
                                     $spentTotal = (int)($u->orders_sum_total ?? 0);
+
+                                    // ---- HẠNG THÀNH VIÊN ----
+                                    // Ưu tiên cột membership_level; nếu rỗng thì tính từ tổng đã chi theo logic của Model
+                                    $levelKey = $u->membership_level ?: \App\Models\User::levelByTotal($spentTotal);
+                                    $levelLabels = ['dong'=>'Đồng','bac'=>'Bạc','vang'=>'Vàng','kim_cuong'=>'Kim cương'];
+                                    $levelBadges = ['dong'=>'secondary','bac'=>'info','vang'=>'warning','kim_cuong'=>'primary'];
+                                    $levelLabel = $levelLabels[$levelKey] ?? '—';
+                                    $levelBadge = $levelBadges[$levelKey] ?? 'secondary';
                                     @endphp
                                     <tr>
                                         <td>{{ ($users->currentPage()-1)*$users->perPage() + $loop->iteration }}</td>
@@ -126,9 +134,14 @@
                                         <td>{{ $genderTxt }}</td>
 
                                         <td>
-                                            <span class="badge bg-{{ $badge }} badge-role">
+                                            <span class="badge bg-{{ $badgeRole }} badge-role">
                                                 {{ str_replace('_',' ', $u->role) }}
                                             </span>
+                                        </td>
+
+                                        {{-- Hạng thành viên --}}
+                                        <td>
+                                            <span class="badge bg-{{ $levelBadge }}">{{ $levelLabel }}</span>
                                         </td>
 
                                         <td class="addr" title="{{ $u->address }}">{{ $u->address }}</td>
@@ -157,19 +170,17 @@
                                         </td>
                                     </tr>
                                     @empty
-                                    {{-- cập nhật colspan cho đúng tổng số cột (9) --}}
+                                    {{-- cập nhật colspan cho đúng tổng số cột (10) --}}
                                     <tr>
-                                        <td colspan="9" class="text-center text-muted py-4">Không có người dùng phù hợp.</td>
+                                        <td colspan="10" class="text-center text-muted py-4">Không có người dùng phù hợp.</td>
                                     </tr>
                                     @endforelse
                                 </tbody>
-
                             </table>
                         </div>
                     </div>
 
                     <div class="card-footer">
-                        {{-- Bootstrap 5 pager (khỏi lo Tailwind) --}}
                         {{ $users->links('pagination::bootstrap-5') }}
                     </div>
                 </div>

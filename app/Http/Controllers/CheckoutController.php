@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Schema; // thêm import
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -14,10 +14,9 @@ use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Coupon;
-use App\Models\Product; // <-- NHỚ IMPORT
+use App\Models\Product;
 use App\Mail\OrderPlacedMail;
 use Carbon\Carbon;
-use Illuminate\Support\Arr;
 
 class CheckoutController extends Controller
 {
@@ -335,12 +334,10 @@ class CheckoutController extends Controller
         try {
             $order = DB::transaction(function () use ($request, $userId, $orderCode, $subtotal, $finalShipping, $discount, $total, $lines) {
 
-                // (1) Kiểm tra & trừ kho NGAY, khóa dòng để tránh race condition
+                // (1) Kiểm tra & trừ kho NGAY
                 foreach ($lines as $li) {
                     $p = Product::lockForUpdate()->find($li['product_id']);
-                    if (!$p) {
-                        throw new \RuntimeException("Sản phẩm #{$li['product_id']} không tồn tại.");
-                    }
+                    if (!$p) throw new \RuntimeException("Sản phẩm #{$li['product_id']} không tồn tại.");
                     $avai = (int) ($p->so_luong_ton_kho ?? 0);
                     if ($avai < (int) $li['qty']) {
                         throw new \RuntimeException("{$p->ten_san_pham} chỉ còn {$avai}, không đủ {$li['qty']}.");
@@ -368,11 +365,11 @@ class CheckoutController extends Controller
                     'ward_name'      => $request->ward_name,
                     'note'           => $request->note,
                     'payment_method' => $request->payment_method,
-                    'payment_status' => 'chua_thanh_toan', // COD
+                    'payment_status' => 'chua_thanh_toan',
                     'subtotal'       => (int) $subtotal,
                     'shipping_fee'   => (int) $finalShipping,
                     'total'          => (int) $total,
-                    'stock_applied'  => true, // đã trừ kho
+                    'stock_applied'  => true,
                 ]);
 
                 // (3) Items
@@ -399,6 +396,7 @@ class CheckoutController extends Controller
             ]);
         }
 
+        // Gửi mail xác nhận (có thể giữ nguyên kể cả VNPAY)
         if (!empty($order->email)) {
             Log::info('SEND_ORDER_MAIL', ['order_code' => $order->code, 'to' => $order->email]);
             try {
@@ -408,6 +406,35 @@ class CheckoutController extends Controller
             }
         }
 
+        // Nếu chọn VNPAY -> redirect sang cổng thanh toán NGAY, không set placed_order
+        if ($request->payment_method === 'vnpay') {
+            $cfg = config('vnpay');
+            $params = [
+                'vnp_Version'    => $cfg['version'],
+                'vnp_TmnCode'    => $cfg['tmn'],
+                'vnp_Command'    => $cfg['command'],
+                'vnp_Amount'     => ((int)$order->total) * 100,   // nhân 100
+                'vnp_CurrCode'   => $cfg['curr'],
+                'vnp_TxnRef'     => $order->code,                 // dùng mã đơn để đối soát
+                'vnp_OrderInfo'  => 'Thanh toan don hang ' . $order->code,
+                'vnp_OrderType'  => 'other',
+                'vnp_Locale'     => $cfg['locale'],
+                'vnp_ReturnUrl'  => $cfg['return_url'],
+                'vnp_IpAddr'     => $request->ip(),
+                'vnp_CreateDate' => now()->format('YmdHis'),
+                // 'vnp_ExpireDate' => now()->addMinutes(15)->format('YmdHis'),
+            ];
+
+            $url = $this->vnpayBuildSignedUrl($params);
+            // đảm bảo cờ phương thức
+            if ($order->payment_method !== 'vnpay') {
+                $order->payment_method = 'vnpay';
+                $order->save();
+            }
+            return redirect()->away($url);
+        }
+
+        // --- COD: giữ nguyên trang "đã đặt hàng"
         $shippingInfo = [
             'fullname'      => $request->fullname,
             'email'         => $request->email,
@@ -438,7 +465,7 @@ class CheckoutController extends Controller
             'subtotal'    => (int) $order->subtotal,
             'shipping'    => (int) $order->shipping_fee,
             'total'       => (int) $order->total,
-            'discount'    => (int) ($discount ?? 0),
+            'discount'    => (int) (($applied['value'] ?? 0) ? ($subtotal + $finalShipping - $total) : 0),
             'coupon_code' => $applied['code'] ?? null,
         ]);
 
@@ -500,9 +527,7 @@ class CheckoutController extends Controller
                     $ids = DB::table('coupon_products')->where('coupon_id', $couponId)->pluck('product_id')->all();
                     if (!$ids) return 0;
                     return array_reduce($cartItems, function ($carry, $it) use ($ids) {
-                        if (in_array($it['product_id'] ?? 0, $ids)) {
-                            $carry += ($it['price'] * $it['qty']);
-                        }
+                        if (in_array($it['product_id'] ?? 0, $ids)) $carry += ($it['price'] * $it['qty']);
                         return $carry;
                     }, 0);
 
@@ -510,9 +535,7 @@ class CheckoutController extends Controller
                     $ids = DB::table('coupon_categories')->where('coupon_id', $couponId)->pluck('category_id')->all();
                     if (!$ids) return 0;
                     return array_reduce($cartItems, function ($carry, $it) use ($ids) {
-                        if (in_array($it['category_id'] ?? 0, $ids)) {
-                            $carry += ($it['price'] * $it['qty']);
-                        }
+                        if (in_array($it['category_id'] ?? 0, $ids)) $carry += ($it['price'] * $it['qty']);
                         return $carry;
                     }, 0);
 
@@ -520,9 +543,7 @@ class CheckoutController extends Controller
                     $ids = DB::table('coupon_brands')->where('coupon_id', $couponId)->pluck('brand_id')->all();
                     if (!$ids) return 0;
                     return array_reduce($cartItems, function ($carry, $it) use ($ids) {
-                        if (in_array($it['brand_id'] ?? 0, $ids)) {
-                            $carry += ($it['price'] * $it['qty']);
-                        }
+                        if (in_array($it['brand_id'] ?? 0, $ids)) $carry += ($it['price'] * $it['qty']);
                         return $carry;
                     }, 0);
 
@@ -557,7 +578,6 @@ class CheckoutController extends Controller
         return ltrim(str_replace('\\', '/', $path), '/');
     }
 
-
     public function cancel(Request $request)
     {
         $request->validate(['order_code' => 'required|string']);
@@ -566,42 +586,42 @@ class CheckoutController extends Controller
             return redirect()->route('login')->with('error', 'Vui lòng đăng nhập.');
         }
 
-        $order = Order::with('items')
-            ->where('code', $request->order_code)
-            ->where('user_id', Auth::id())
-            ->first();
-
-        if (!$order) {
-            return back()->with('error', 'Không tìm thấy đơn hàng.');
-        }
-
-        // Chỉ hủy khi đơn còn sớm
-        if (!in_array($order->status, ['da_dat', 'cho_chuyen_phat', 'dang_xu_ly'])) {
-            return back()->with('error', 'Đơn không thể hủy ở trạng thái hiện tại.');
-        }
-
-        // Nếu đã thanh toán online, tùy chính sách của bạn
-        if ($order->payment_status === 'da_thanh_toan' && $order->payment_method === 'vnpay') {
-            return back()->with('error', 'Đơn đã thanh toán, vui lòng liên hệ CSKH để được hỗ trợ hủy.');
-        }
-
+        $userId    = Auth::id();
         $restocked = [];
+        $already   = false;
 
         try {
-            DB::transaction(function () use ($order, &$restocked) {
-                // Chỉ hoàn kho nếu trước đó đã trừ và chưa hoàn
-                if ($order->stock_applied) {
-                    foreach ($order->items as $it) {
-                        if (!$it->product_id) continue;
+            DB::transaction(function () use ($request, $userId, &$restocked, &$already) {
+                $order = Order::where('code', $request->order_code)
+                    ->where('user_id', $userId)
+                    ->lockForUpdate()
+                    ->with('items')
+                    ->first();
 
-                        // Khóa dòng để tránh race condition
+                if (!$order) throw new \RuntimeException('Không tìm thấy đơn hàng.');
+
+                if ($order->status === 'da_huy') {
+                    $already = true;
+                    return;
+                }
+
+                if (!in_array($order->status, ['da_dat', 'cho_chuyen_phat'], true)) {
+                    throw new \RuntimeException('Đơn không thể hủy ở trạng thái hiện tại.');
+                }
+
+                if ($order->payment_status === 'da_thanh_toan' && $order->payment_method === 'vnpay') {
+                    throw new \RuntimeException('Đơn đã thanh toán, vui lòng liên hệ CSKH để được hỗ trợ hủy.');
+                }
+
+                $shouldRestock = Schema::hasColumn('orders', 'stock_applied') ? (bool)$order->stock_applied : true;
+
+                if ($shouldRestock) {
+                    foreach ($order->items as $it) {
+                        if (!$it->product_id || !$it->quantity) continue;
                         $p = Product::lockForUpdate()->find($it->product_id);
                         if (!$p) continue;
-
                         $returned = (int) $it->quantity;
                         $p->increment('so_luong_ton_kho', $returned);
-                        $p->refresh();
-
                         $restocked[] = [
                             'id'       => $p->id,
                             'name'     => $p->ten_san_pham,
@@ -609,25 +629,129 @@ class CheckoutController extends Controller
                             'now'      => (int) ($p->so_luong_ton_kho ?? 0),
                         ];
                     }
-                    // Đánh dấu đã hoàn để sau bấm lại không + kho lần nữa
-                    $order->stock_applied = false;
+                    if (Schema::hasColumn('orders', 'stock_applied')) $order->stock_applied = false;
                 }
 
                 $order->status = 'da_huy';
-                if (Schema::hasColumn('orders', 'canceled_at')) {
-                    $order->canceled_at = now();
-                }
+                if (Schema::hasColumn('orders', 'canceled_at')) $order->canceled_at = now();
                 $order->save();
             });
         } catch (\Throwable $e) {
             report($e);
-            return back()->with('error', 'Không hủy được đơn. Vui lòng thử lại.');
+            return back()->with('error', $e->getMessage() ?: 'Không hủy được đơn. Vui lòng thử lại.');
         }
 
-        // Gửi thông tin hoàn kho về flash để bạn nhìn được kết quả
-        return redirect()
-            ->route('home')
-            ->with('success', 'Đã hủy đơn ' . $order->code . ' và hoàn kho thành công.')
+        if ($already) {
+            return redirect()->route('home')->with('info', 'Đơn hàng này đã được hủy trước đó.');
+        }
+
+        return redirect()->route('home')
+            ->with('success', 'Đã hủy đơn và hoàn kho thành công.')
             ->with('restocked', $restocked);
+    }
+
+    // ======== VNPAY helpers ========
+    private function vnpayBuildSignedUrl(array $params): string
+    {
+        $cfg = config('vnpay');
+
+        // Lọc các tham số rỗng và sắp xếp theo thứ tự khóa
+        $params = array_filter($params, fn($v) => $v !== null && $v !== '');
+        ksort($params);
+
+        // Tạo chuỗi dữ liệu để hash (không urlencode theo yêu cầu VNPay)
+        $hashData = implode('&', array_map(
+            fn($k, $v) => sprintf('%s=%s', $k, $v),
+            array_keys($params),
+            array_values($params)
+        ));
+
+        // Tạo chữ ký bảo mật bằng SHA512
+        $secureHash = hash_hmac('sha512', $hashData, trim($cfg['hash_secret']));
+
+        // Tạo URL hoàn chỉnh với query string
+        $query = http_build_query($params, '', '&');
+        return $cfg['url'] . '?' . $query . '&vnp_SecureHash=' . $secureHash;
+    }
+
+    private function vnpayVerify(array $all): bool
+    {
+        $cfg = config('vnpay');
+
+        // Lấy chữ ký từ phản hồi và loại bỏ nó khỏi mảng để kiểm tra
+        $vnp_SecureHash = $all['vnp_SecureHash'] ?? '';
+        unset($all['vnp_SecureHash'], $all['vnp_SecureHashType']);
+
+        // Lọc các tham số rỗng và sắp xếp
+        $all = array_filter($all, fn($v) => $v !== null && $v !== '');
+        ksort($all);
+
+        // Tạo chuỗi dữ liệu để kiểm tra chữ ký
+        $hashData = implode('&', array_map(
+            fn($k, $v) => sprintf('%s=%s', $k, $v),
+            array_keys($all),
+            array_values($all)
+        ));
+
+        // Tạo chữ ký để so sánh
+        $calc = hash_hmac('sha512', $hashData, trim($cfg['hash_secret']));
+        return hash_equals($calc, $vnp_SecureHash);
+    }
+
+    // ======== VNPAY Return (user quay về site) ========
+    public function vnpayReturn(Request $request)
+    {
+        if (!$this->vnpayVerify($request->all())) {
+            return redirect()->route('home')->with('error', 'Chữ ký VNPAY không hợp lệ.');
+        }
+
+        $orderCode = $request->input('vnp_TxnRef');
+        $respCode  = $request->input('vnp_ResponseCode');
+
+        $order = Order::where('code', $orderCode)->first();
+        if (!$order) {
+            return redirect()->route('home')->with('error', 'Không tìm thấy đơn hàng.');
+        }
+
+        if ($respCode === '00') {
+            $order->payment_status = 'da_thanh_toan';
+            if ($order->status === 'da_dat') $order->status = 'cho_chuyen_phat';
+            $order->save();
+            return redirect()->route('order.placed')->with('success', 'Thanh toán thành công.');
+        }
+        return redirect()->route('order.placed')->with('error', 'Thanh toán thất bại (' . $respCode . ').');
+    }
+
+
+
+    // ======== VNPAY IPN (server-to-server) ========
+    public function vnpayIpn(Request $request)
+    {
+        if (!$this->vnpayVerify($request->all())) {
+            return response()->json(['RspCode' => '97', 'Message' => 'Invalid Checksum']);
+        }
+
+        $orderCode = $request->input('vnp_TxnRef');
+        $respCode  = $request->input('vnp_ResponseCode');
+
+        $order = Order::where('code', $orderCode)->lockForUpdate()->first();
+        if (!$order) {
+            return response()->json(['RspCode' => '01', 'Message' => 'Order not found']);
+        }
+
+        if ($respCode === '00') {
+            if ($order->payment_status !== 'da_thanh_toan') {
+                $order->payment_status = 'da_thanh_toan';
+                if ($order->status === 'da_dat') $order->status = 'cho_chuyen_phat';
+                $order->save();
+            }
+            return response()->json(['RspCode' => '00', 'Message' => 'Confirm Success']);
+        }
+
+        if ($order->payment_status !== 'da_thanh_toan') {
+            $order->payment_status = 'chua_thanh_toan';
+            $order->save();
+        }
+        return response()->json(['RspCode' => '00', 'Message' => 'Recorded']);
     }
 }

@@ -153,39 +153,52 @@
                                 </div>
 
                                 {{-- PHƯƠNG THỨC THANH TOÁN --}}
+                                {{-- PHƯƠNG THỨC THANH TOÁN --}}
                                 <div class="col-12">
                                     <h6 class="mt-2 mb-3">Phương thức thanh toán</h6>
 
                                     <div class="list-group mb-1">
+
+                                        {{-- COD --}}
                                         <label class="list-group-item d-flex align-items-center gap-3">
                                             <input class="form-check-input m-0" type="radio" name="payment_method" value="cod"
-                                                {{ old('payment_method','cod') === 'cod' ? 'checked' : '' }}>
-                                            <img src="{{ asset('img/cod-box.svg') }}" alt="COD" width="28" height="28" onerror="this.style.display='none'">
+                                                {{ old('payment_method', 'cod') == 'cod' ? 'checked' : '' }}>
+                                            <img src="{{ asset('img/cod-box.svg') }}" alt="COD" width="28" height="28"
+                                                onerror="this.style.display='none'">
                                             <div>
                                                 <div class="fw-semibold">Thanh toán khi giao hàng (COD)</div>
                                                 <div class="text-muted small">Bạn sẽ thanh toán tiền mặt cho nhân viên giao hàng.</div>
                                             </div>
                                         </label>
 
+                                        {{-- VNPAY --}}
                                         <label class="list-group-item d-flex align-items-center gap-3">
                                             <input class="form-check-input m-0" type="radio" name="payment_method" value="vnpay"
-                                                {{ old('payment_method') === 'vnpay' ? 'checked' : '' }}>
-                                            <img src="{{ asset('img/vnpay.svg') }}" alt="VNPAY" width="28" height="28" onerror="this.style.display='none'">
+                                                {{ old('payment_method') == 'vnpay' ? 'checked' : '' }}>
+                                            <img src="{{ asset('img/vnpay.svg') }}" alt="VNPAY" width="28" height="28"
+                                                onerror="this.style.display='none'">
                                             <div>
                                                 <div class="fw-semibold">Thẻ ATM/Visa/Master/JCB/QR Pay qua cổng VNPAY</div>
                                                 <div class="text-muted small">Hỗ trợ hầu hết ngân hàng nội địa và thẻ quốc tế.</div>
                                             </div>
                                         </label>
 
+                                        {{-- Thông tin phụ khi chọn VNPAY --}}
                                         <div id="vnpayBox" class="list-group-item d-none">
                                             <div class="d-flex align-items-center gap-2 mb-2">
-                                                <img src="{{ asset('images/vnpay-banks.png') }}" alt="Banks" height="24" onerror="this.style.display='none'">
+                                                <img src="{{ asset('images/vnpay-banks.png') }}" alt="Banks" height="24"
+                                                    onerror="this.style.display='none'">
                                                 <span class="small text-muted">Chọn phương thức qua cổng VNPAY</span>
                                             </div>
-                                            <div class="form-text mt-2">Sau khi đặt hàng, bạn sẽ được chuyển sang trang thanh toán VNPAY để hoàn tất.</div>
+                                            <div class="form-text mt-2">
+                                                Sau khi đặt hàng, bạn sẽ được chuyển sang trang thanh toán VNPAY để hoàn tất.
+                                            </div>
                                         </div>
                                     </div>
-                                    @error('payment_method') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+
+                                    @error('payment_method')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
                                 </div>
 
                                 <div class="col-12 mt-2">

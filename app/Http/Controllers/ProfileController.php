@@ -24,7 +24,7 @@ class ProfileController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
-        // Nếu có hàm tính hạng thành viên thì đồng bộ; nếu chưa có thì bỏ qua để tránh lỗi.
+        // Đồng bộ hạng (nếu có)
         $loyalty = null;
         if (method_exists($user, 'syncMembershipLevel')) {
             try {
@@ -34,15 +34,22 @@ class ProfileController extends Controller
             }
         }
 
+        // Đơn hàng
         $orders = Order::visibleForUser($user)
             ->latest()
             ->paginate(10);
 
-        // --- Lấy coupon đang chạy & hợp lệ cho hạng hiện tại ---
-        $level  = $user->membership_level ?: 'dong';
+        // Tổng tiền đã chi (chỉ tính đơn đã thanh toán và không bị hủy)
+        $totalSpent = Order::visibleForUser($user)
+            ->where('payment_status', 'da_thanh_toan')
+            ->where('status', '!=', 'da_huy')
+            ->sum('total');
+
+        // Coupon theo hạng hiện tại
+        $level   = $user->membership_level ?: 'dong';
         $coupons = $this->queryCouponsForLevel($level);
 
-        return view('layouts.profile', compact('user', 'orders', 'loyalty', 'coupons'));
+        return view('layouts.profile', compact('user', 'orders', 'loyalty', 'coupons', 'totalSpent'));
     }
 
     /**
@@ -80,7 +87,6 @@ class ProfileController extends Controller
             return response()->json(['ok' => true, 'user' => $user]);
         }
 
-        // Tên route hiển thị trang hồ sơ: profile.index (điều chỉnh nếu bạn đặt tên khác)
         return redirect()
             ->route('profile.index')
             ->with('status', 'Cập nhật thông tin thành công!');
@@ -108,13 +114,12 @@ class ProfileController extends Controller
 
     /**
      * Helper: Truy vấn coupon đang chạy và hợp lệ cho hạng.
-     * Ưu tiên dùng scope running() và eligibleForLevel(); nếu model chưa có, fallback điều kiện thủ công.
      */
     private function queryCouponsForLevel(string $level)
     {
         $q = Coupon::query();
 
-        $hasRunningScope = method_exists(Coupon::class, 'scopeRunning');
+        $hasRunningScope  = method_exists(Coupon::class, 'scopeRunning');
         $hasEligibleScope = method_exists(Coupon::class, 'scopeEligibleForLevel');
 
         if ($hasRunningScope) {

@@ -110,7 +110,7 @@
                                 <i class="bi bi-truck me-2"></i> Theo dõi đơn hàng
                             </a>
                             <a class="list-group-item list-group-item-action" href="{{ route('home') }}">
-                                <i class="bi bi-box-arrow-right me-2"></i> Trang Chủ
+                                <i class="bi bi-house me-2"></i> Trang Chủ
                             </a>
                             <a class="list-group-item list-group-item-action" href="{{ route('logout') }}"
                                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -132,6 +132,20 @@
                                     <i class="bi bi-person text-success fs-5"></i>
                                     <div class="h6 mb-0">Thông tin cá nhân</div>
                                 </div>
+                                {{-- ====== TỔNG TIỀN ĐÃ CHI ====== --}}
+                                <div class="card-soft p-3 mb-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="h6 mb-0">Tổng số tiền bạn đã chi</div>
+                                        <span class="badge text-bg-primary">Đã thanh toán</span>
+                                    </div>
+                                    <div class="display-6 fw-bold mt-2">
+                                        {{ number_format((int)($totalSpent ?? 0), 0, ',', '.') }} đ
+                                    </div>
+                                    <!-- <div class="small text-muted mt-1">
+                                        * Chỉ tính các đơn đã thanh toán và không bị hủy.
+                                    </div> -->
+                                </div>
+                                {{-- ====== /TỔNG TIỀN ĐÃ CHI ====== --}}
 
                                 @if($user)
                                 {{-- ====== CẤP BẬC THÀNH VIÊN ====== --}}
@@ -141,8 +155,6 @@
                                 $labels = ['Đồng','Bạc','Vàng','Kim cương'];
                                 $idx = array_search($level, $levels, true);
                                 if ($idx === false) $idx = 0;
-
-                                // ảnh trong public/images/ranks/...
                                 $imgs = [
                                 'dong' => asset('images/ranks/dong.png'),
                                 'bac' => asset('images/ranks/bac.png'),
@@ -230,7 +242,6 @@
                 </div>
 
                 {{-- ƯU ĐÃI CHO KHÁCH HÀNG --}}
-                {{-- ƯU ĐÃI CHO KHÁCH HÀNG --}}
                 <div class="tab-pane fade" id="tab-orders" role="tabpanel">
                     <div class="card-soft p-4">
                         <div class="d-flex align-items-center gap-2 mb-3">
@@ -249,7 +260,6 @@
                         </div>
 
                         @if(isset($coupons) && $coupons->count())
-                        {{-- Luôn hiển thị 1 mã/dòng trên mobile và 2 mã/dòng từ md (≥768px) --}}
                         <div class="row row-cols-1 row-cols-md-2 g-3">
                             @foreach($coupons as $cp)
                             @php
@@ -351,7 +361,7 @@
                                             <div class="mb-3">{{ $minTxt }}</div>
                                             @endif
 
-                                            @if($isPercent && $cp->max_discount)
+                                            @if(($cp->type ?? null) === 'percent' && $cp->max_discount)
                                             <div class="small text-muted mb-2">Giảm tối đa</div>
                                             <div class="mb-3">{{ $maxTxt }}</div>
                                             @endif
@@ -378,10 +388,28 @@
                     </div>
                 </div>
 
-
                 {{-- THEO DÕI ĐƠN HÀNG --}}
                 <div class="tab-pane fade" id="tab-tracking" role="tabpanel">
                     <div class="card-soft p-4">
+
+                        {{-- Flash messages + danh sách hoàn kho --}}
+                        @if(session('success'))
+                        <div class="alert alert-success">{{ session('success') }}</div>
+                        @endif
+                        @if(session('error'))
+                        <div class="alert alert-danger">{{ session('error') }}</div>
+                        @endif
+                        @if(session('restocked') && is_array(session('restocked')))
+                        <div class="alert alert-light border mt-2">
+                            <div class="fw-semibold mb-1">Đã hoàn kho:</div>
+                            <ul class="mb-0">
+                                @foreach(session('restocked') as $r)
+                                <li>{{ $r['name'] }}: +{{ $r['returned'] }} (tồn hiện tại: {{ $r['now'] }})</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        @endif
+
                         <div class="d-flex align-items-center gap-2 mb-3">
                             <i class="bi bi-truck text-success fs-5"></i>
                             <div class="h6 mb-0">Theo dõi đơn hàng</div>
@@ -390,8 +418,8 @@
                         @php
                         $stageMap = [
                         'da_dat'=>0,'dat_hang'=>0,'da_dat_hang'=>0,'pending'=>0,'placed'=>0,
-                        'cho_chuyen_phat'=>1,'dang_xu_ly'=>1,'da_xuat_kho'=>1,'processing'=>1,'packed'=>1,'shipped'=>1,
-                        'dang_trung_chuyen'=>2,'dang_giao'=>2,'in_transit'=>2,'delivering'=>2,
+                        'cho_chuyen_phat'=>1,'da_xuat_kho'=>1,'processing'=>1,'packed'=>1,'shipped'=>1,
+                        'dang_trung_chuyen'=>2,'in_transit'=>2,'delivering'=>2,'dang_giao'=>2,
                         'da_giao'=>3,'delivered'=>3,
                         'da_huy'=>-1,'huy'=>-1,'canceled'=>-1,'failed'=>-1,'return'=>-1,
                         ];
@@ -405,7 +433,12 @@
                             $stage = $stageMap[$st] ?? 0;
                             $isCan = ($stage === -1);
 
-                            $recvAddress = trim(collect([$o->address ?? null,$o->ward_name ?? null,$o->district_name ?? null,$o->province_name ?? null])->filter()->implode(', '));
+                            $recvAddress = trim(collect([
+                            $o->address ?? null,
+                            $o->ward_name ?? null,
+                            $o->district_name ?? null,
+                            $o->province_name ?? null
+                            ])->filter()->implode(', '));
 
                             $orderData = [
                             'id' => $o->id,
@@ -423,6 +456,10 @@
                             'recv_email' => $o->email ?? null,
                             'recv_address' => $recvAddress,
                             ];
+
+                            // Điều kiện cho phép hủy: chỉ ở 'da_dat' hoặc 'cho_chuyen_phat' và không phải đơn VNPAY đã thanh toán
+                            $canCancel = in_array(($o->status ?? ''), ['da_dat','cho_chuyen_phat'], true)
+                            && !(($o->payment_method ?? null) === 'vnpay' && ($o->payment_status ?? null) === 'da_thanh_toan');
                             @endphp
 
                             <div class="border rounded-3 p-3">
@@ -430,11 +467,25 @@
                                     <div class="fw-semibold">Đơn #{{ $o->code ?? $o->id }}</div>
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="small text-muted">{{ $o->created_at?->format('d/m/Y H:i') }}</span>
+
+                                        {{-- Xem chi tiết --}}
                                         <button type="button" class="btn btn-sm btn-outline-primary btn-view-order"
                                             data-bs-toggle="modal" data-bs-target="#orderDetailModal"
                                             data-order='@json($orderData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)'>
                                             <i class="bi bi-eye me-1"></i> Chi tiết
                                         </button>
+
+                                        {{-- Hủy đơn (nếu được phép) --}}
+                                        @if($canCancel)
+                                        <form method="POST" action="{{ route('order.cancel') }}" class="d-inline"
+                                            onsubmit="return confirm('Bạn chắc chắn muốn hủy đơn #{{ $o->code ?? $o->id }}?');">
+                                            @csrf
+                                            <input type="hidden" name="order_code" value="{{ $o->code }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-x-circle me-1"></i> Hủy đơn
+                                            </button>
+                                        </form>
+                                        @endif
                                     </div>
                                 </div>
 
@@ -451,8 +502,23 @@
                                 <div class="d-flex justify-content-between small text-muted mt-2">
                                     <span>Đã đặt hàng</span><span>Chờ chuyển phát</span><span>Đang trung chuyển</span><span>Đã giao đơn hàng</span>
                                 </div>
+
+                                {{-- Nếu đã hủy, hiện thời điểm hủy nếu có --}}
+                                @if(($o->status ?? '') === 'da_huy')
+                                <div class="small text-danger mt-2">
+                                    Đã hủy
+                                    @if(!empty($o->canceled_at))
+                                    lúc {{ \Carbon\Carbon::parse($o->canceled_at)->format('d/m/Y H:i') }}
+                                    @endif
+                                </div>
+                                @endif
                             </div>
                             @endforeach
+                        </div>
+
+                        {{-- Phân trang --}}
+                        <div class="mt-3">
+                            {{ $orders->links('pagination::bootstrap-5') }}
                         </div>
                         @else
                         <div class="text-muted">Bạn chưa có đơn hàng nào để theo dõi.</div>
@@ -582,25 +648,38 @@
         </div>
     </div>
 
-    {{-- Copy mã (handler cũ cho .btn-copy-code) --}}
+    {{-- Copy mã (handler cũ cho .btn-copy-code và .coupon-copy) --}}
     <script>
         (function() {
+            // Tooltip
+            const selector = '[data-bs-toggle="tooltip"]';
+            const initTooltip = () => {
+                document.querySelectorAll(selector).forEach(el => new bootstrap.Tooltip(el));
+            };
+            document.addEventListener('DOMContentLoaded', initTooltip);
+            document.addEventListener('shown.bs.modal', initTooltip);
+
+            // Copy mã
             document.addEventListener('click', function(e) {
-                const btn = e.target.closest('.btn-copy-code');
+                const btn = e.target.closest('.coupon-copy, .btn-copy-code');
                 if (!btn) return;
                 const code = btn.dataset.code || '';
                 if (!code) return;
 
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(code).then(() => {
-                        btn.classList.remove('btn-outline-primary');
-                        btn.classList.add('btn-success');
+                        const old = btn.innerHTML;
                         btn.innerHTML = '<i class="bi bi-check2 me-1"></i> Đã sao chép';
+                        btn.classList.add('btn-success');
+                        btn.classList.remove('btn-outline-success');
+
                         setTimeout(() => {
-                            btn.classList.add('btn-outline-primary');
-                            btn.classList.remove('btn-success');
-                            btn.innerHTML = '<i class="bi bi-clipboard me-1"></i> Sao chép';
-                        }, 1500);
+                            btn.innerHTML = old || '<i class="bi bi-clipboard me-1"></i> Sao chép';
+                            // giữ màu nếu là nút trong card
+                            if (!old || !old.includes('Điều kiện')) {
+                                btn.classList.add('btn-success');
+                            }
+                        }, 1400);
                     });
                 }
             });
@@ -659,42 +738,17 @@
         })();
     </script>
 
-    {{-- Tooltip + copy cho block coupon mới (.coupon-copy) --}}
+    {{-- Kích hoạt tab theo query ?tab=... (ví dụ ?tab=tracking sau khi hủy) --}}
     <script>
-        // Khởi tạo tooltip cho các icon có data-bs-toggle="tooltip"
         (function() {
-            const selector = '[data-bs-toggle="tooltip"]';
-            const init = () => {
-                document.querySelectorAll(selector).forEach(el => new bootstrap.Tooltip(el));
-            };
-            document.addEventListener('DOMContentLoaded', init);
-            document.addEventListener('shown.bs.modal', init);
-        })();
-
-        // Copy mã giảm giá cho các nút .coupon-copy
-        (function() {
-            document.addEventListener('click', function(e) {
-                const btn = e.target.closest('.coupon-copy');
-                if (!btn) return;
-                const code = btn.dataset.code || '';
-                if (!code) return;
-
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(code).then(() => {
-                        const old = btn.innerHTML;
-                        btn.innerHTML = '<i class="bi bi-check2 me-1"></i> Đã sao chép';
-                        btn.classList.add('btn-success');
-                        btn.classList.remove('btn-outline-success');
-                        setTimeout(() => {
-                            btn.innerHTML = old;
-                            // với nút trong card chính, giữ màu "success" đặc
-                            if (!old.includes('Điều kiện')) {
-                                btn.classList.add('btn-success');
-                            }
-                        }, 1400);
-                    });
-                }
-            });
+            const params = new URLSearchParams(location.search);
+            const tab = params.get('tab');
+            if (!tab) return;
+            const el = document.querySelector(`[data-bs-toggle="list"][href="#tab-${tab}"]`);
+            if (el) {
+                const t = new bootstrap.Tab(el);
+                t.show();
+            }
         })();
     </script>
 </body>

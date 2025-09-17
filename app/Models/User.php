@@ -55,10 +55,11 @@ class User extends Authenticatable
     public static function levelByTotal(int $total): string
     {
         return match (true) {
-            $total >= 3_000_000 => 'kim_cuong',
+            $total >= 5_000_000 => 'kim_cuong',
             $total >= 2_000_000 => 'vang',
-            $total >= 5_000_000  => 'bac',
-            default               => 'dong',
+            $total >= 1_000_000 => 'bac',
+            $total >= 500       => 'dong',
+            $total >= 0         => 'dong', // catch-all cho <500
         };
     }
 
@@ -69,10 +70,10 @@ class User extends Authenticatable
     public function syncMembershipLevel(): array
     {
         $thresholds = [
-            'dong'      => 0,
+            'dong'      => 500,
             'bac'       => 1_000_000,
             'vang'      => 2_000_000,
-            'kim_cuong' => 3_000_000,
+            'kim_cuong' => 5_000_000,
         ];
         $ladder = ['dong' => 'bac', 'bac' => 'vang', 'vang' => 'kim_cuong', 'kim_cuong' => null];
 

@@ -22,9 +22,9 @@ class CustomerAdminController extends Controller
                         ->orWhere('phone', 'like', "%$q%");
                 });
             })
-            // 👇 gom thống kê theo user
+            // Gom thống kê theo user
             ->withCount('orders')
-            ->withSum('orders', 'total')        // => orders_sum_total
+            ->withSum('orders', 'total')   // => orders_sum_total
             ->orderByDesc('created_at')
             ->paginate($perPage)
             ->withQueryString();
