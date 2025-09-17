@@ -128,11 +128,8 @@ Route::post('/don-hang/huy', [CheckoutController::class, 'cancel'])
 
     ->name('order.cancel');
 
-// callback từ VNPAY (có thể để trong chính CheckoutController)
-Route::get('/vnpay/return', [CheckoutController::class, 'vnpayReturn'])->name('vnpay.return');
-Route::post('/vnpay/ipn',   [CheckoutController::class, 'vnpayIpn'])->name('vnpay.ipn');
-
-
+Route::get('/da-dat-hang/vnpay/return', [CheckoutController::class, 'vnpayReturn'])->name('vnpay.return'); // khớp .env
+Route::post('/vnpay/ipn', [CheckoutController::class, 'vnpayIpn'])->name('vnpay.ipn');
 /*
 |--------------------------------------------------------------------------
 | Admin

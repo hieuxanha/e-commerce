@@ -396,7 +396,7 @@ class CheckoutController extends Controller
             ]);
         }
 
-        // Gửi mail xác nhận (có thể giữ nguyên kể cả VNPAY)
+        // Gửi mail xác nhận
         if (!empty($order->email)) {
             Log::info('SEND_ORDER_MAIL', ['order_code' => $order->code, 'to' => $order->email]);
             try {
@@ -406,31 +406,44 @@ class CheckoutController extends Controller
             }
         }
 
-        // Nếu chọn VNPAY -> redirect sang cổng thanh toán NGAY, không set placed_order
+        // Nếu chọn VNPAY -> redirect ngay
         if ($request->payment_method === 'vnpay') {
             $cfg = config('vnpay');
+
+            $orderInfo = $this->stripAccents('Thanh toan don hang ' . $order->code);
+
+            // IP: ép IPv4 hợp lệ (tránh ::1/127.0.0.1)
+            $clientIp = $this->clientIp();
+            if (!filter_var($clientIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                $clientIp = '13.160.92.202'; // fallback IPv4 public
+            }
+
             $params = [
                 'vnp_Version'    => $cfg['version'],
                 'vnp_TmnCode'    => $cfg['tmn'],
                 'vnp_Command'    => $cfg['command'],
-                'vnp_Amount'     => ((int)$order->total) * 100,   // nhân 100
+                'vnp_Amount'     => ((int)$order->total) * 100,     // *100 & integer
                 'vnp_CurrCode'   => $cfg['curr'],
-                'vnp_TxnRef'     => $order->code,                 // dùng mã đơn để đối soát
-                'vnp_OrderInfo'  => 'Thanh toan don hang ' . $order->code,
-                'vnp_OrderType'  => 'other',
+                'vnp_TxnRef'     => $order->code,
+                'vnp_OrderInfo'  => $orderInfo,                      // không dấu
+                'vnp_OrderType'  => 'other',                         // thêm
                 'vnp_Locale'     => $cfg['locale'],
                 'vnp_ReturnUrl'  => $cfg['return_url'],
-                'vnp_IpAddr'     => $request->ip(),
-                'vnp_CreateDate' => now()->format('YmdHis'),
-                // 'vnp_ExpireDate' => now()->addMinutes(15)->format('YmdHis'),
+                'vnp_IpAddr'     => $clientIp,
+                'vnp_CreateDate' => now('Asia/Ho_Chi_Minh')->format('YmdHis'),
             ];
 
+            // Log tham số để debug nếu cần
+            Log::debug('VNPAY PARAMS', $params);
+
             $url = $this->vnpayBuildSignedUrl($params);
-            // đảm bảo cờ phương thức
+
             if ($order->payment_method !== 'vnpay') {
                 $order->payment_method = 'vnpay';
                 $order->save();
             }
+
+            Log::debug('VNPAY REDIRECT', ['url' => $url]);
             return redirect()->away($url);
         }
 
@@ -650,52 +663,56 @@ class CheckoutController extends Controller
             ->with('restocked', $restocked);
     }
 
-    // ======== VNPAY helpers ========
+    // ======== VNPAY helpers (chuẩn sample VNPay) ========
     private function vnpayBuildSignedUrl(array $params): string
     {
         $cfg = config('vnpay');
 
-        // Lọc các tham số rỗng và sắp xếp theo thứ tự khóa
+        // Lọc rỗng + sort key
         $params = array_filter($params, fn($v) => $v !== null && $v !== '');
         ksort($params);
 
-        // Tạo chuỗi dữ liệu để hash (không urlencode theo yêu cầu VNPay)
-        $hashData = implode('&', array_map(
-            fn($k, $v) => sprintf('%s=%s', $k, $v),
-            array_keys($params),
-            array_values($params)
-        ));
+        // 1) Chuỗi để ký: urlencode từng key & value (VNPay sample)
+        $hashData = '';
+        $query    = '';
+        foreach ($params as $k => $v) {
+            $hashData .= ($hashData ? '&' : '') . urlencode($k) . '=' . urlencode($v);
+            $query    .= urlencode($k) . '=' . urlencode($v) . '&'; // dùng luôn để redirect
+        }
 
-        // Tạo chữ ký bảo mật bằng SHA512
+        // 2) Tạo secure hash HMAC-SHA512
         $secureHash = hash_hmac('sha512', $hashData, trim($cfg['hash_secret']));
 
-        // Tạo URL hoàn chỉnh với query string
-        $query = http_build_query($params, '', '&');
-        return $cfg['url'] . '?' . $query . '&vnp_SecureHash=' . $secureHash;
+        // (Không đưa SecureHashType vào chuỗi ký)
+        $query .= 'vnp_SecureHashType=HMACSHA512&vnp_SecureHash=' . $secureHash;
+
+        logger()->info('VNPAY OUT', ['hashData' => $hashData, 'secureHash' => $secureHash]);
+
+        return rtrim($cfg['url'], '?') . '?' . $query;
     }
 
     private function vnpayVerify(array $all): bool
     {
         $cfg = config('vnpay');
 
-        // Lấy chữ ký từ phản hồi và loại bỏ nó khỏi mảng để kiểm tra
-        $vnp_SecureHash = $all['vnp_SecureHash'] ?? '';
+        // Lấy chữ ký trả về & bỏ khỏi mảng
+        $recvHash = $all['vnp_SecureHash'] ?? '';
         unset($all['vnp_SecureHash'], $all['vnp_SecureHashType']);
 
-        // Lọc các tham số rỗng và sắp xếp
+        // Lọc rỗng + sort
         $all = array_filter($all, fn($v) => $v !== null && $v !== '');
         ksort($all);
 
-        // Tạo chuỗi dữ liệu để kiểm tra chữ ký
-        $hashData = implode('&', array_map(
-            fn($k, $v) => sprintf('%s=%s', $k, $v),
-            array_keys($all),
-            array_values($all)
-        ));
+        // Build hashData theo sample: urlencode từng key & value
+        $hashData = '';
+        foreach ($all as $k => $v) {
+            $hashData .= ($hashData ? '&' : '') . urlencode($k) . '=' . urlencode($v);
+        }
 
-        // Tạo chữ ký để so sánh
         $calc = hash_hmac('sha512', $hashData, trim($cfg['hash_secret']));
-        return hash_equals($calc, $vnp_SecureHash);
+        logger()->info('VNPAY VERIFY', ['hashData' => $hashData, 'calc' => $calc, 'recv' => $recvHash]);
+
+        return hash_equals($calc, $recvHash);
     }
 
     // ======== VNPAY Return (user quay về site) ========
@@ -708,7 +725,7 @@ class CheckoutController extends Controller
         $orderCode = $request->input('vnp_TxnRef');
         $respCode  = $request->input('vnp_ResponseCode');
 
-        $order = Order::where('code', $orderCode)->first();
+        $order = Order::with('items')->where('code', $orderCode)->first();
         if (!$order) {
             return redirect()->route('home')->with('error', 'Không tìm thấy đơn hàng.');
         }
@@ -717,12 +734,50 @@ class CheckoutController extends Controller
             $order->payment_status = 'da_thanh_toan';
             if ($order->status === 'da_dat') $order->status = 'cho_chuyen_phat';
             $order->save();
-            return redirect()->route('order.placed')->with('success', 'Thanh toán thành công.');
+
+            $etaFrom = now()->addDays(2)->format('d/m');
+            $etaTo   = now()->addDays(3)->format('d/m');
+
+            $shippingInfo = [
+                'fullname'      => $order->fullname,
+                'email'         => $order->email,
+                'phone'         => $order->phone,
+                'address'       => $order->address,
+                'province_name' => $order->province_name,
+                'district_name' => $order->district_name,
+                'ward_name'     => $order->ward_name,
+                'note'          => $order->note,
+            ];
+
+            session()->forget('applied_coupon');
+
+            session()->put('placed_order', [
+                'orderCode'    => $order->code,
+                'eta_from'     => $etaFrom,
+                'eta_to'       => $etaTo,
+                'shippingInfo' => $shippingInfo,
+                'items'        => collect($order->items)->map(function ($i) {
+                    return [
+                        'name'  => $i->product_name,
+                        'qty'   => (int) $i->quantity,
+                        'price' => (int) $i->price,
+                        'total' => (int) $i->total,
+                        'image' => $this->resolveImageUrl($i->image) ?: asset('images/no-image.png'),
+                    ];
+                })->all(),
+                'subtotal'    => (int) $order->subtotal,
+                'shipping'    => (int) $order->shipping_fee,
+                'total'       => (int) $order->total,
+                'discount'    => (int) max(0, $order->subtotal + $order->shipping_fee - $order->total),
+                'coupon_code' => null,
+            ]);
+
+            return redirect()->route('order.placed')->with('success', 'Thanh toán VNPAY thành công!');
         }
-        return redirect()->route('order.placed')->with('error', 'Thanh toán thất bại (' . $respCode . ').');
+
+        // Thất bại/huỷ -> về giỏ hàng
+        return redirect()->route('cart.index')->with('error', 'Thanh toán không thành công (' . $respCode . ').');
     }
-
-
 
     // ======== VNPAY IPN (server-to-server) ========
     public function vnpayIpn(Request $request)
@@ -753,5 +808,30 @@ class CheckoutController extends Controller
             $order->save();
         }
         return response()->json(['RspCode' => '00', 'Message' => 'Recorded']);
+    }
+
+    // ======== Extra helpers ========
+    private function clientIp(): string
+    {
+        // Trả IP thật từ các header phổ biến (nếu có proxy), rồi fallback
+        $keys = ['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR'];
+        foreach ($keys as $key) {
+            $ipList = request()->server($key);
+            if ($ipList) {
+                foreach (explode(',', $ipList) as $ip) {
+                    $ip = trim($ip);
+                    if (filter_var($ip, FILTER_VALIDATE_IP)) {
+                        return $ip;
+                    }
+                }
+            }
+        }
+        return request()->ip();
+    }
+
+    private function stripAccents(string $str): string
+    {
+        $str = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $str);
+        return preg_replace('/[^A-Za-z0-9 \-\_\.#]/', ' ', $str);
     }
 }
